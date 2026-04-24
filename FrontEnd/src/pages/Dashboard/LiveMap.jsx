@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/Sidebar';
 import Header from '../../components/Header';
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
 
 function TurnIcon({ modifier }) {
   const mod = modifier ? modifier.toLowerCase() : '';
@@ -20,69 +19,6 @@ function TurnIcon({ modifier }) {
   return <svg className="w-6 h-6 text-volt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5"/><path strokeLinecap="round" strokeLinejoin="round" d="M5 12l7-7 7 7"/></svg>;
 }
 
-function MapUpdater({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    map.flyTo(center, map.getZoom(), {
-      animate: true,
-      duration: 1.5
-    });
-  }, [center, map]);
-  return null;
-}
-
-function NavigationFitter({ location, isNavigating, isAutoFollow }) {
-  const map = useMap();
-  useEffect(() => {
-    if (isNavigating && isAutoFollow && location) {
-      if (map.getZoom() < 17) {
-        map.flyTo([location.lat, location.lng], 18, {
-          animate: true,
-          duration: 1
-        });
-      } else {
-        map.panTo([location.lat, location.lng], {
-          animate: true,
-          duration: 0.8
-        });
-      }
-    }
-  }, [location, isNavigating, isAutoFollow, map]);
-  return null;
-}
-
-function MapInteractionListener({ onInteract }) {
-  const map = useMap();
-  useEffect(() => {
-    map.on('dragstart', onInteract);
-    return () => {
-      map.off('dragstart', onInteract);
-    };
-  }, [map, onInteract]);
-  return null;
-}
-
-function CustomMapControls({ map, onLocate }) {
-  if (!map) return null;
-  return (
-    <div className="absolute bottom-8 right-6 flex flex-col gap-3 z-[1000] pointer-events-auto">
-      <button onClick={(e) => { e.stopPropagation(); map.zoomIn(); }} className="w-12 h-12 bg-[#161616]/90 backdrop-blur-md border border-[#2c2c2c] rounded-xl flex items-center justify-center text-white hover:bg-[#222] transition-colors shadow-lg">
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
-      </button>
-      <button onClick={(e) => { e.stopPropagation(); map.zoomOut(); }} className="w-12 h-12 bg-[#161616]/90 backdrop-blur-md border border-[#2c2c2c] rounded-xl flex items-center justify-center text-white hover:bg-[#222] transition-colors shadow-lg">
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M20 12H4"/></svg>
-      </button>
-      <button 
-        onClick={(e) => { e.stopPropagation(); onLocate(map); }}
-        title="Locate Me"
-        className="w-12 h-12 bg-[#161616]/90 backdrop-blur-md border border-[#2c2c2c] rounded-xl flex items-center justify-center text-white hover:bg-[#222] mt-2 transition-colors shadow-[0_0_15px_rgba(204,230,0,0.15)] hover:shadow-[0_0_20px_rgba(204,230,0,0.3)] border-b-2 border-b-volt-green/50"
-      >
-        <svg className="w-5 h-5 text-volt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      </button>
-    </div>
-  );
-}
-
 export default function LiveMap() {
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -92,13 +28,25 @@ export default function LiveMap() {
   const [routeCoords, setRouteCoords] = useState(null);
   
   const [isRouting, setIsRouting] = useState(false);
-  const [isAutoFollow, setIsAutoFollow] = useState(true); // Controls whether map is locked to user
+  const [isAutoFollow, setIsAutoFollow] = useState(true); 
   const [navInstruction, setNavInstruction] = useState(null);
   
   const [hasFetchedStations, setHasFetchedStations] = useState(false);
-  const [mapInstance, setMapInstance] = useState(null);
   const locationRef = useRef(null);
   const navigate = useNavigate();
+
+  const [viewState, setViewState] = useState({
+    longitude: -122.4194,
+    latitude: 37.7749,
+    zoom: 12,
+    pitch: 0,
+    bearing: 0
+  });
+
+  const isRoutingRef = useRef(isRouting);
+  const isAutoFollowRef = useRef(isAutoFollow);
+  useEffect(() => { isRoutingRef.current = isRouting; }, [isRouting]);
+  useEffect(() => { isAutoFollowRef.current = isAutoFollow; }, [isAutoFollow]);
   
   const API_KEYS = [
     'b506fd81-d7b5-463d-a901-62b5f5c35b42',
@@ -139,28 +87,40 @@ export default function LiveMap() {
            distance = getDistance(lastLat, lastLng, newLat, newLng);
         }
 
-        // Only update if it's the first location OR we moved more than 3 meters (fixes GPS jitter/bouncing)
         if (lastLat === null || distance > 3) {
           setLocation({ lat: newLat, lng: newLng });
           locationRef.current = { lat: newLat, lng: newLng };
 
+          let currentHeading = 0;
           if (position.coords.heading !== null && !isNaN(position.coords.heading)) {
-            setHeading(position.coords.heading);
+            currentHeading = position.coords.heading;
           } else if (lastLat !== null && lastLng !== null) {
             const startLat = lastLat * Math.PI / 180;
             const startLng = lastLng * Math.PI / 180;
             const destLat = newLat * Math.PI / 180;
             const destLng = newLng * Math.PI / 180;
-
             const y = Math.sin(destLng - startLng) * Math.cos(destLat);
             const x = Math.cos(startLat) * Math.sin(destLat) -
                       Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
             let brng = Math.atan2(y, x);
             brng = brng * 180 / Math.PI;
-            const finalHeading = (brng + 360) % 360;
-            
-            setHeading(finalHeading);
+            currentHeading = (brng + 360) % 360;
           }
+          
+          setHeading(currentHeading);
+
+          if (isAutoFollowRef.current) {
+             setViewState(prev => ({
+                ...prev,
+                longitude: newLng,
+                latitude: newLat,
+                zoom: isRoutingRef.current ? 18 : 14,
+                pitch: isRoutingRef.current ? 65 : 0,
+                bearing: isRoutingRef.current ? currentHeading : 0,
+                transitionDuration: 1000
+             }));
+          }
+
           lastLat = newLat;
           lastLng = newLng;
         }
@@ -183,15 +143,21 @@ export default function LiveMap() {
     const fetchStations = async () => {
       setLoading(true);
       setHasFetchedStations(true);
-      let success = false;
       
+      // Setup initial view
+      setViewState(prev => ({
+         ...prev,
+         longitude: location.lng,
+         latitude: location.lat,
+         zoom: 14,
+         transitionDuration: 2000
+      }));
+
+      let success = false;
       for (const key of API_KEYS) {
         try {
           const res = await fetch(`https://api.openchargemap.io/v3/poi?key=${key}&latitude=${location.lat}&longitude=${location.lng}&distance=30&distanceunit=KM&maxresults=30`);
-          if (!res.ok) {
-            console.warn(`API fetch failed with key ${key}, status: ${res.status}`);
-            continue;
-          }
+          if (!res.ok) continue;
           const data = await res.json();
           setStations(data);
           success = true;
@@ -199,10 +165,6 @@ export default function LiveMap() {
         } catch (err) {
           console.error(`API Fetch Error with key ${key}:`, err);
         }
-      }
-      
-      if (!success) {
-        console.error("All API keys failed to fetch stations.");
       }
       
       setLoading(false);
@@ -217,14 +179,30 @@ export default function LiveMap() {
       setIsRouting(false);
       setNavInstruction(null);
       setIsAutoFollow(true);
+      if (location) {
+        setViewState(prev => ({
+          ...prev,
+          pitch: 0,
+          bearing: 0,
+          transitionDuration: 1000
+        }));
+      }
     }
-  }, [selectedStation]);
+  }, [selectedStation, location]);
 
   const handleStartRoute = async () => {
     if (!selectedStation || !location) return;
     
     setIsRouting(true);
-    setIsAutoFollow(true); // Snap to auto-follow when routing begins
+    setIsAutoFollow(true);
+    
+    setViewState(prev => ({
+       ...prev,
+       zoom: 18,
+       pitch: 65,
+       bearing: heading,
+       transitionDuration: 2000
+    }));
     
     try {
       const startLng = location.lng;
@@ -236,8 +214,8 @@ export default function LiveMap() {
       const data = await res.json();
       
       if (data.routes && data.routes.length > 0) {
-        const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-        setRouteCoords(coords);
+        // GeoJSON uses [lng, lat], which MapLibre perfectly accepts natively!
+        setRouteCoords(data.routes[0].geometry.coordinates);
 
         const steps = data.routes[0].legs[0].steps;
         if (steps && steps.length > 1) {
@@ -283,11 +261,6 @@ export default function LiveMap() {
     );
   }
 
-  // If the map is in auto-follow mode, we rotate the map itself. Otherwise, 0 rotation so dragging works smoothly.
-  const currentMapRotation = (isRouting && isAutoFollow) ? -heading : 0;
-  // If map is NOT rotated (0), we still need stations perfectly upright (0). If map IS rotated, counter-rotate stations.
-  const stationRotation = currentMapRotation === 0 ? 0 : heading;
-
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
       
@@ -297,109 +270,102 @@ export default function LiveMap() {
         <Header />
 
         <div className="flex-1 relative overflow-hidden bg-[#0a0f0d]">
-          {/* Map Wrapper for Live Rotation */}
-          <div 
-            className="absolute top-1/2 left-1/2 w-[150vw] h-[150vh] transition-transform duration-500 ease-out z-0"
-            style={{ 
-              transform: `translate(-50%, -50%) rotate(${currentMapRotation}deg)` 
-            }}
+          {/* MapLibre WebGL Engine */}
+          <Map
+            {...viewState}
+            onMove={evt => setViewState(evt.viewState)}
+            onDragStart={() => setIsAutoFollow(false)}
+            mapStyle="https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+            style={{ width: '100%', height: '100%' }}
+            pitchWithGestures={true}
+            dragRotate={true}
           >
-            <MapContainer 
-              ref={setMapInstance}
-              center={[location.lat, location.lng]} 
-              zoom={12} 
-              zoomControl={false}
-              className="w-full h-full"
+            {/* Native 3D Controls (Compass & Zoom) */}
+            <NavigationControl position="bottom-right" style={{ marginRight: 24, marginBottom: 90 }} showCompass={true} showZoom={true} />
+
+            {/* User Navigation Arrow (Lies flat on ground in 3D, rotates perfectly) */}
+            <Marker 
+              longitude={location.lng} 
+              latitude={location.lat} 
+              anchor="center"
+              pitchAlignment={isRouting ? "map" : "viewport"}
+              rotationAlignment={isRouting ? "map" : "viewport"}
+              rotation={isRouting ? heading : 0}
             >
-              <TileLayer
-                attribution='&copy; OpenStreetMap &copy; CARTO'
-                url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              />
-              
-              <MapInteractionListener onInteract={() => {
-                if (isRouting && isAutoFollow) {
-                  // User touched map! Stop auto-follow and snap map to North-Up so they can drag easily
-                  setIsAutoFollow(false);
-                }
-              }} />
+              {isRouting ? (
+                <svg width="64" height="64" viewBox="0 0 48 48" fill="none" style={{ filter: 'drop-shadow(0 0 15px rgba(204,230,0,0.8))' }}>
+                  <path d="M24 4L42 42L24 34L6 42L24 4Z" fill="#cce600" stroke="#111" strokeWidth="2" strokeLinejoin="round"/>
+                </svg>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <div className="w-5 h-5 bg-blue-500 rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(59,130,246,0.6)] animate-pulse"></div>
+                  <div className="text-blue-200 text-[9px] font-bold mt-1 uppercase tracking-widest bg-black/70 px-1.5 py-0.5 rounded">You</div>
+                </div>
+              )}
+            </Marker>
 
-              {!isRouting && <MapUpdater center={[location.lat, location.lng]} />}
-              <NavigationFitter location={location} isNavigating={isRouting} isAutoFollow={isAutoFollow} />
+            {/* Station Markers (Billboard style - always upright) */}
+            {!loading && stations.map((station, index) => {
+              const isOperational = station.StatusType?.IsOperational !== false;
+              const power = getPower(station.Connections);
+              const lng = station.AddressInfo.Longitude;
+              const lat = station.AddressInfo.Latitude;
 
-              {/* User Center Pin / Navigation Arrow */}
-              <Marker 
-                position={[location.lat, location.lng]} 
-                icon={L.divIcon({
-                  className: 'bg-transparent border-none',
-                  html: isRouting ? `
-                    <div class="flex items-center justify-center transition-all duration-700 ease-linear" style="transform: rotate(${heading}deg); margin-left: -50%; margin-top: -50%;">
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 15px rgba(204,230,0,0.8));">
-                        <path d="M24 4L42 42L24 34L6 42L24 4Z" fill="#cce600" stroke="#111" stroke-width="2" stroke-linejoin="round"/>
+              return (
+                <Marker
+                  key={station.ID || index}
+                  longitude={lng}
+                  latitude={lat}
+                  anchor="bottom"
+                  onClick={(e) => {
+                    e.originalEvent.stopPropagation();
+                    setSelectedStation(station);
+                  }}
+                  style={{ zIndex: selectedStation?.ID === station.ID ? 10 : 1 }}
+                >
+                  <div className={`flex flex-col items-center group cursor-pointer hover:scale-110 transition-transform origin-bottom ${selectedStation?.ID === station.ID ? 'scale-110' : ''}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 border-2 ${isOperational ? 'bg-volt-green border-volt-green shadow-[0_0_20px_rgba(204,230,0,0.4)]' : 'bg-[#111] border-neutral-500'}`}>
+                      <svg className={`w-4 h-4 ${isOperational ? 'text-black' : 'text-neutral-500'}`} viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
                       </svg>
                     </div>
-                  ` : `
-                    <div class="flex flex-col items-center" style="margin-left: -50%;">
-                      <div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-[0_0_15px_rgba(59,130,246,0.6)] animate-pulse"></div>
-                      <div class="text-blue-200 text-[8px] font-bold mt-1 uppercase tracking-widest bg-black/50 px-1 rounded">You</div>
+                    <div className={`bg-[#111] border text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${isOperational ? 'border-volt-green text-volt-green' : 'border-[#333] text-neutral-500'} shadow-lg`}>
+                      {power}kW • {isOperational ? 'FREE' : 'OFFLINE'}
                     </div>
-                  `,
-                  iconSize: isRouting ? [48, 48] : [16, 24],
-                  iconAnchor: isRouting ? [24, 24] : [8, 12]
-                })}
-              />
+                  </div>
+                </Marker>
+              );
+            })}
 
-              {/* Dynamic Map Pins */}
-              {!loading && stations.map((station, index) => {
-                const isOperational = station.StatusType?.IsOperational !== false;
-                const power = getPower(station.Connections);
-                const lat = station.AddressInfo.Latitude;
-                const lng = station.AddressInfo.Longitude;
-
-                return (
-                  <Marker
-                    key={station.ID || index}
-                    position={[lat, lng]}
-                    icon={L.divIcon({
-                      className: 'bg-transparent border-none',
-                      html: `
-                        <div class="flex flex-col items-center group transition-transform duration-500 ease-out" style="width: max-content; margin-left: -50%; transform: rotate(${stationRotation}deg);">
-                          <div class="w-8 h-8 rounded-full flex items-center justify-center mb-1 border-2 ${isOperational ? 'bg-volt-green border-volt-green shadow-[0_0_20px_rgba(204,230,0,0.4)]' : 'bg-[#111] border-neutral-500'}">
-                            <svg class="w-4 h-4 ${isOperational ? 'text-black' : 'text-neutral-500'}" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                            </svg>
-                          </div>
-                          <div class="bg-[#111] border text-[9px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${isOperational ? 'border-volt-green text-volt-green' : 'border-[#333] text-neutral-500'}">
-                            ${power}kW • ${isOperational ? 'FREE' : 'OFFLINE'}
-                          </div>
-                        </div>
-                      `,
-                      iconSize: [32, 56],
-                      iconAnchor: [16, 56]
-                    })}
-                    eventHandlers={{
-                      click: () => {
-                        setSelectedStation(station);
-                      },
-                    }}
-                  />
-                );
-              })}
-
-              {/* Animated Route Display */}
-              {routeCoords && (
-                <>
-                  <Polyline positions={routeCoords} color="#222" weight={8} opacity={0.8} />
-                  <Polyline 
-                    positions={routeCoords} 
-                    color="#cce600" 
-                    weight={5} 
-                    opacity={1}
-                    className="animated-route"
-                  />
-                </>
-              )}
-            </MapContainer>
-          </div>
+            {/* Glowing 3D Route Display */}
+            {routeCoords && (
+              <Source 
+                id="route-source" 
+                type="geojson" 
+                data={{
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'LineString',
+                    coordinates: routeCoords
+                  }
+                }}
+              >
+                <Layer 
+                  id="route-glow" 
+                  type="line" 
+                  layout={{ 'line-join': 'round', 'line-cap': 'round' }}
+                  paint={{ 'line-color': '#cce600', 'line-width': 12, 'line-opacity': 0.3, 'line-blur': 4 }} 
+                />
+                <Layer 
+                  id="route-line" 
+                  type="line" 
+                  layout={{ 'line-join': 'round', 'line-cap': 'round' }}
+                  paint={{ 'line-color': '#cce600', 'line-width': 5 }} 
+                />
+              </Source>
+            )}
+          </Map>
 
           {/* Turn-by-Turn Navigation Banner */}
           {isRouting && navInstruction && (
@@ -421,26 +387,50 @@ export default function LiveMap() {
             <button 
               onClick={() => {
                 setIsAutoFollow(true);
-                if (mapInstance && location) {
-                  mapInstance.flyTo([location.lat, location.lng], 18, { animate: true, duration: 1 });
+                if (location) {
+                  setViewState(prev => ({
+                    ...prev,
+                    longitude: location.lng,
+                    latitude: location.lat,
+                    zoom: 18,
+                    pitch: 65,
+                    bearing: heading,
+                    transitionDuration: 1000
+                  }));
                 }
               }}
-              className="absolute bottom-28 left-1/2 -translate-x-1/2 bg-volt-green text-black px-6 py-3 rounded-full font-bold shadow-[0_10px_30px_rgba(204,230,0,0.3)] z-[1000] flex items-center gap-2 hover:bg-[#b3cc00] transition-transform hover:scale-105 active:scale-95 animate-in slide-in-from-bottom-8 duration-300"
+              className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-volt-green text-black px-6 py-3 rounded-full font-bold shadow-[0_10px_30px_rgba(204,230,0,0.3)] z-[1000] flex items-center gap-2 hover:bg-[#b3cc00] transition-transform hover:scale-105 active:scale-95 animate-in slide-in-from-bottom-8 duration-300"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               RESUME
             </button>
           )}
 
-          {/* Custom Map Controls Outside Rotating Container */}
-          <CustomMapControls map={mapInstance} onLocate={(m) => {
-             if (location) {
-               m.flyTo([location.lat, location.lng], 18, { animate: true, duration: 1.5 });
-               if (isRouting) setIsAutoFollow(true);
-             }
-          }} />
+          {/* Locate Me Bottom Right */}
+          <div className="absolute bottom-8 right-6 z-[1000]">
+            <button 
+              onClick={() => { 
+                setIsAutoFollow(true);
+                if (location) {
+                  setViewState(prev => ({
+                    ...prev,
+                    longitude: location.lng,
+                    latitude: location.lat,
+                    zoom: isRouting ? 18 : 14,
+                    pitch: isRouting ? 65 : 0,
+                    bearing: isRouting ? heading : 0,
+                    transitionDuration: 1000
+                  }));
+                }
+              }}
+              title="Locate Me"
+              className="w-10 h-10 bg-[#292929]/90 backdrop-blur-md border border-[#444] rounded flex items-center justify-center text-white hover:bg-[#333] transition-colors shadow-lg"
+            >
+              <svg className="w-5 h-5 text-volt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </button>
+          </div>
 
-          {/* Left Floating Panel (Nearby Stations) - Hidden during routing for cleaner view */}
+          {/* Left Floating Panel (Nearby Stations) */}
           {!isRouting && (
             <div className="absolute top-6 left-6 md:w-[360px] w-full px-6 md:px-0 flex flex-col gap-4 z-[1000] h-[calc(100%-48px)] pointer-events-none">
               <div className="bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl flex-1 flex flex-col overflow-hidden pointer-events-auto">
@@ -583,23 +573,16 @@ export default function LiveMap() {
           background: #333;
           border-radius: 4px;
         }
-        .leaflet-container {
-          background: #0a0f0d;
+        .maplibregl-ctrl-group {
+          background-color: rgba(41, 41, 41, 0.9) !important;
+          backdrop-filter: blur(8px);
+          border: 1px solid #444;
         }
-        .leaflet-control-attribution {
-          background: rgba(0,0,0,0.5) !important;
-          color: #888 !important;
+        .maplibregl-ctrl-group button {
+          border-bottom: 1px solid #444 !important;
         }
-        .leaflet-control-attribution a {
-          color: #aaa !important;
-        }
-        .animated-route {
-          stroke-dasharray: 15, 15;
-          animation: dashMove 1s linear infinite;
-        }
-        @keyframes dashMove {
-          0% { stroke-dashoffset: 30; }
-          100% { stroke-dashoffset: 0; }
+        .maplibregl-ctrl-group button span {
+          filter: invert(1);
         }
       `}} />
     </div>
