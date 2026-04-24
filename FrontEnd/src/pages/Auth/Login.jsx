@@ -25,8 +25,8 @@ export default function Login() {
 
       if (res.ok) {
         localStorage.setItem('token', data.token);
-        // Navigate to dashboard or home page (since there's no dashboard yet, just alert or stay)
-        alert('Logged in successfully!');
+        // Navigate to dashboard
+        navigate('/dashboard');
       } else {
         setError(data.message || 'Invalid credentials');
       }
