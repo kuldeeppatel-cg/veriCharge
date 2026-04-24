@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import evChargingImg from '../../assets/ev_charging.png';
 
 export default function Signup() {
@@ -126,7 +127,7 @@ export default function Signup() {
           </button>
 
           <p className="text-center mt-8 lg:mt-7 text-[14px] lg:text-[15px] text-neutral-400">
-            Already have an account? <a href="#" className="text-volt-green font-semibold hover:underline">Log in</a>
+            Already have an account? <Link to="/login" className="text-volt-green font-semibold hover:underline">Log in</Link>
           </p>
         </div>
 
