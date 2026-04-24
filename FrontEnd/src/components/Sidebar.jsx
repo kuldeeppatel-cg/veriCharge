@@ -27,7 +27,7 @@ export default function Sidebar({ activePage }) {
             <span className="text-[11px] font-bold tracking-widest uppercase">Stations</span>
           </Link>
 
-          <Link to="#" className="flex items-center gap-4 px-8 py-4 border-l-4 border-transparent text-neutral-400 hover:text-white hover:bg-[#161616] transition-colors">
+          <Link to="/reliability" className={`flex items-center gap-4 px-8 py-4 border-l-4 transition-colors ${activePage === 'reliability' ? 'border-volt-green bg-volt-green/5 text-volt-green' : 'border-transparent text-neutral-400 hover:text-white hover:bg-[#161616]'}`}>
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
