@@ -4,6 +4,7 @@ import Signup from './pages/Auth/Signup'
 import Login from './pages/Auth/Login'
 import Dashboard from './pages/Dashboard/Dashboard'
 import LiveMap from './pages/Dashboard/LiveMap'
+import History from './pages/Dashboard/History'
 import './App.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<LiveMap />} />
         <Route path="/station" element={<Dashboard />} />
+        <Route path="/history" element={<History />} />
       </Routes>
     </BrowserRouter>
   )
