@@ -1,7 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Login() {
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('token', data.token);
+        // Navigate to dashboard or home page (since there's no dashboard yet, just alert or stay)
+        alert('Logged in successfully!');
+      } else {
+        setError(data.message || 'Invalid credentials');
+      }
+    } catch (err) {
+      setError('Server connection error');
+    }
+  };
+
   return (
     <div className="min-h-screen w-screen bg-[#0e0e0e] flex flex-col justify-center items-center font-inter text-white px-4 relative overflow-hidden">
       
@@ -12,7 +45,7 @@ export default function Login() {
       <div className="w-full max-w-[420px] bg-[#161616] border border-[#222] rounded-2xl p-8 relative z-10 shadow-2xl">
         
         {/* Header */}
-        <div className="flex flex-col items-center mb-10">
+        <div className="flex flex-col items-center mb-8">
           <div className="w-12 h-12 bg-[#222] rounded-xl flex items-center justify-center mb-4">
             <svg className="w-6 h-6 text-volt-green" viewBox="0 0 24 24" fill="currentColor">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
@@ -22,14 +55,20 @@ export default function Login() {
           <p className="text-[#888] text-sm">Sign in to VeriCharge Desktop</p>
         </div>
 
+        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+
         {/* Form */}
-        <form className="flex flex-col gap-5" onSubmit={(e) => e.preventDefault()}>
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
           
           <div className="flex flex-col gap-2">
             <label className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase ml-1">EMAIL ADDRESS</label>
             <div className="relative flex items-center">
               <input 
                 type="email" 
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
                 placeholder="name@volt-node.io" 
                 className="w-full bg-[#0e0e0e] border border-[#333] rounded-xl text-white text-[15px] py-3.5 px-4 focus:outline-none focus:border-volt-green/50 transition-colors placeholder:text-neutral-600"
               />
@@ -45,6 +84,10 @@ export default function Login() {
             <div className="relative flex items-center">
               <input 
                 type="password" 
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
                 placeholder="••••••••" 
                 className="w-full bg-[#0e0e0e] border border-[#333] rounded-xl text-white text-[15px] py-3.5 px-4 focus:outline-none focus:border-volt-green/50 transition-colors placeholder:text-neutral-600 tracking-widest"
               />

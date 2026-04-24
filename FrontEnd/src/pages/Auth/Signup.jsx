@@ -1,8 +1,41 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import evChargingImg from '../../assets/ev_charging.png';
 
 export default function Signup() {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: '', // Need a password field as well since the backend requires it! Wait, Figma didn't have password. I will add it subtly.
+    vehicleModel: ''
+  });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:5000/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        navigate('/login');
+      } else {
+        setError(data.message || 'Something went wrong');
+      }
+    } catch (err) {
+      setError('Server connection error');
+    }
+  };
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-screen bg-volt-dark font-inter text-white overflow-x-hidden">
       
@@ -45,12 +78,14 @@ export default function Signup() {
         <div className="w-12 h-1.5 bg-neutral-700 rounded-full mb-8 lg:hidden"></div>
 
         <div className="w-full max-w-[400px]">
-          <div className="mb-8 lg:mb-10 text-center lg:text-left">
+          <div className="mb-6 lg:mb-8 text-center lg:text-left">
             <h2 className="text-2xl font-semibold mb-2 text-neutral-100">Create your account</h2>
             <p className="text-sm text-neutral-400">Access the most reliable charging infrastructure.</p>
           </div>
 
-          <form className="flex flex-col gap-4 lg:gap-5" onSubmit={(e) => e.preventDefault()}>
+          {error && <p className="text-red-500 text-sm mb-4 text-center lg:text-left">{error}</p>}
+
+          <form className="flex flex-col gap-4 lg:gap-4" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-1.5 lg:gap-2">
               <label className="text-[10px] font-semibold text-neutral-400 tracking-wide uppercase ml-1">FULL NAME</label>
               <div className="relative flex items-center">
@@ -60,6 +95,10 @@ export default function Signup() {
                 </svg>
                 <input 
                   type="text" 
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  required
                   placeholder="Enter your full name" 
                   className="w-full bg-volt-gray border border-volt-border rounded-xl lg:rounded-md text-white text-[15px] py-3.5 lg:py-3 pl-11 pr-4 focus:outline-none focus:border-neutral-500 transition-colors placeholder:text-neutral-600"
                 />
@@ -74,6 +113,10 @@ export default function Signup() {
                 </svg>
                 <input 
                   type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
                   placeholder="name@company.com" 
                   className="w-full bg-volt-gray border border-volt-border rounded-xl lg:rounded-md text-white text-[15px] py-3.5 lg:py-3 pl-11 pr-4 focus:outline-none focus:border-neutral-500 transition-colors placeholder:text-neutral-600"
                 />
@@ -90,7 +133,10 @@ export default function Signup() {
                   <circle cx="17" cy="15" r="1.5" />
                 </svg>
                 <select 
-                  defaultValue="" 
+                  name="vehicleModel"
+                  value={formData.vehicleModel}
+                  onChange={handleChange}
+                  required
                   className="w-full bg-volt-gray border border-volt-border rounded-xl lg:rounded-md text-white text-[15px] py-3.5 lg:py-3 pl-11 pr-4 focus:outline-none focus:border-neutral-500 transition-colors appearance-none cursor-pointer invalid:text-neutral-600"
                 >
                   <option value="" disabled hidden>Select your vehicle</option>
@@ -104,7 +150,26 @@ export default function Signup() {
               </div>
             </div>
 
-            <button type="submit" className="mt-4 lg:mt-2.5 w-full bg-volt-green text-black border-none rounded-xl lg:rounded-md py-3.5 lg:py-3 text-[15px] font-bold cursor-pointer flex justify-center items-center gap-2 hover:bg-[#cce600] active:scale-[0.98] transition-all">
+            <div className="flex flex-col gap-1.5 lg:gap-2">
+              <label className="text-[10px] font-semibold text-neutral-400 tracking-wide uppercase ml-1">PASSWORD</label>
+              <div className="relative flex items-center">
+                <svg className="absolute left-4 w-5 h-5 text-neutral-500 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0110 0v4" />
+                </svg>
+                <input 
+                  type="password" 
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="Create a password" 
+                  className="w-full bg-volt-gray border border-volt-border rounded-xl lg:rounded-md text-white text-[15px] py-3.5 lg:py-3 pl-11 pr-4 focus:outline-none focus:border-neutral-500 transition-colors placeholder:text-neutral-600"
+                />
+              </div>
+            </div>
+
+            <button type="submit" className="mt-2 lg:mt-1 w-full bg-volt-green text-black border-none rounded-xl lg:rounded-md py-3.5 lg:py-3 text-[15px] font-bold cursor-pointer flex justify-center items-center gap-2 hover:bg-[#cce600] active:scale-[0.98] transition-all">
               Create Account 
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
