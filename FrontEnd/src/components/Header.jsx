@@ -1,24 +1,14 @@
 import React from 'react';
 
-export default function Header({ title }) {
+export default function Header({ title, children }) {
   return (
     <header className="h-[72px] border-b border-[#222] flex items-center justify-between px-8 bg-[#0e0e0e] shrink-0">
       
-      {/* Title or Search Bar */}
-      {title ? (
-        <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase">{title}</h2>
-      ) : (
-        <div className="relative w-full max-w-[320px]">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Search stations..." 
-            className="w-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] py-2 pl-10 pr-4 focus:outline-none focus:border-volt-green/50 transition-colors placeholder:text-neutral-600"
-          />
-        </div>
-      )}
+      {/* Title / Children */}
+      <div className="flex-1 flex items-center">
+        {title && <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mr-4">{title}</h2>}
+        {children}
+      </div>
 
       {/* Right Icons */}
       <div className="flex items-center gap-5">

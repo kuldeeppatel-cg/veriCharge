@@ -528,7 +528,68 @@ export default function LiveMap() {
       <Sidebar activePage="map" />
 
       <div className="flex flex-col flex-1 h-screen relative">
-        <Header />
+        <Header>
+          <div className="flex items-center gap-4 w-full max-w-[800px] ml-4">
+            <div className="bg-[#111] border border-[#333] rounded-full flex p-1 shrink-0 h-[40px]">
+              <button onClick={() => setTripPlanMode(false)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${!tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>AREA</button>
+              <button onClick={() => setTripPlanMode(true)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>TRIP</button>
+            </div>
+
+            <div className="flex-1 relative h-[40px]">
+              {!tripPlanMode ? (
+                <div className="relative w-full h-full max-w-[400px]">
+                  <form onSubmit={handleSearch} className="relative flex items-center h-full">
+                    <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" /></svg>
+                    <input type="text" placeholder="Search by location..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] pl-11 pr-24 focus:outline-none focus:border-volt-green/50 transition-colors placeholder:text-neutral-600 shadow-inner" />
+                    <button type="submit" disabled={isSearching} className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-[#222] text-white px-4 py-1.5 rounded-full text-[10px] font-bold hover:bg-volt-green hover:text-black transition-colors disabled:opacity-50 tracking-wider">{isSearching ? '...' : 'SEARCH'}</button>
+                  </form>
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
+                      {suggestions.map((s, idx) => (
+                        <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors" onClick={() => handleSuggestionClick(s)}>
+                          <span className="text-white font-bold block text-[13px]">{s.display_name.split(',')[0]}</span>
+                          <span className="text-[11px] text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handlePlanTrip} className="flex gap-3 w-full h-full">
+                  <div className="relative flex-1 h-full">
+                    <input type="text" placeholder="Start Location..." value={tripStart} onChange={(e) => setTripStart(e.target.value)} onFocus={() => { if (tripStartSuggestions.length > 0) setShowTripStartSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
+                    {showTripStartSuggestions && tripStartSuggestions.length > 0 && (
+                      <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
+                        {tripStartSuggestions.map((s, idx) => (
+                          <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors" onClick={() => { setTripStart(s.display_name.split(',')[0]); setShowTripStartSuggestions(false); }}>
+                            <span className="text-white font-bold block text-[13px]">{s.display_name.split(',')[0]}</span>
+                            <span className="text-[11px] text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="relative flex-1 h-full">
+                    <input type="text" placeholder="Destination..." value={tripDest} onChange={(e) => setTripDest(e.target.value)} onFocus={() => { if (tripDestSuggestions.length > 0) setShowTripDestSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
+                    {showTripDestSuggestions && tripDestSuggestions.length > 0 && (
+                      <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
+                        {tripDestSuggestions.map((s, idx) => (
+                          <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors" onClick={() => { setTripDest(s.display_name.split(',')[0]); setShowTripDestSuggestions(false); }}>
+                            <span className="text-white font-bold block text-[13px]">{s.display_name.split(',')[0]}</span>
+                            <span className="text-[11px] text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <button type="submit" disabled={isPlanningTrip} className="shrink-0 bg-[#222] text-white px-5 h-full rounded-full text-[10px] font-bold hover:bg-volt-green hover:text-black transition-colors disabled:opacity-50 tracking-wider">
+                    {isPlanningTrip ? '...' : 'PLAN ROUTE'}
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </Header>
 
         <div className="flex-1 relative overflow-hidden bg-[#0a0f0d]">
           {/* MapLibre WebGL Engine */}
@@ -709,9 +770,11 @@ export default function LiveMap() {
                 }
               }}
               title="Locate Me"
-              className="w-10 h-10 bg-[#292929]/90 backdrop-blur-md border border-[#444] rounded flex items-center justify-center text-white hover:bg-[#333] transition-colors shadow-lg"
+              className="w-12 h-12 bg-[#1c2c20]/90 backdrop-blur-md border border-volt-green/30 rounded-full flex items-center justify-center text-volt-green hover:bg-[#253a2a] transition-colors shadow-[0_4px_20px_rgba(204,230,0,0.2)]"
             >
-              <svg className="w-5 h-5 text-volt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0013 3.06V1h-2v2.06A8.994 8.994 0 003.06 11H1v2h2.06A8.994 8.994 0 0011 20.94V23h2v-2.06A8.994 8.994 0 0020.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
+              </svg>
             </button>
           </div>
 
@@ -719,108 +782,7 @@ export default function LiveMap() {
           {!isRouting && (
             <div className="absolute top-6 left-6 md:w-[360px] w-full px-6 md:px-0 flex flex-col gap-4 z-[1000] h-[calc(100%-48px)] pointer-events-none">
 
-              {/* Search Bar & Live Location */}
-              <div className="bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-4 shadow-2xl pointer-events-auto shrink-0 flex flex-col gap-3">
-                
-                {/* Tabs */}
-                <div className="flex bg-[#111] rounded-lg p-1 border border-[#333]">
-                  <button onClick={() => setTripPlanMode(false)} className={`flex-1 text-xs font-bold py-2 rounded-md transition-colors ${!tripPlanMode ? 'bg-[#222] text-volt-green shadow-sm' : 'text-neutral-500 hover:text-white'}`}>AREA SEARCH</button>
-                  <button onClick={() => setTripPlanMode(true)} className={`flex-1 text-xs font-bold py-2 rounded-md transition-colors ${tripPlanMode ? 'bg-[#222] text-volt-green shadow-sm' : 'text-neutral-500 hover:text-white'}`}>TRIP PLANNER</button>
-                </div>
 
-                {tripPlanMode ? (
-                  <form onSubmit={handlePlanTrip} className="flex flex-col gap-2">
-                    <div className="relative flex items-center">
-                      <input type="text" placeholder="Start Location..." value={tripStart} onChange={(e) => setTripStart(e.target.value)} onFocus={() => { if (tripStartSuggestions.length > 0) setShowTripStartSuggestions(true); }} className="w-full bg-[#111] border border-[#333] text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-volt-green transition-colors shadow-inner" />
-                      <svg className="absolute left-3.5 w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="6" /></svg>
-                      {showTripStartSuggestions && tripStartSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-[#111] border border-[#333] rounded-xl overflow-hidden z-[1010] shadow-2xl">
-                          {tripStartSuggestions.map((s, idx) => (
-                            <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0" onClick={() => { setTripStart(s.display_name.split(',')[0]); setShowTripStartSuggestions(false); }}>
-                              <span className="text-white font-bold block">{s.display_name.split(',')[0]}</span>
-                              <span className="text-xs text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <div className="relative flex items-center">
-                      <input type="text" placeholder="Destination..." value={tripDest} onChange={(e) => setTripDest(e.target.value)} onFocus={() => { if (tripDestSuggestions.length > 0) setShowTripDestSuggestions(true); }} className="w-full bg-[#111] border border-[#333] text-white text-sm rounded-xl pl-10 pr-4 py-3 focus:outline-none focus:border-volt-green transition-colors shadow-inner" />
-                      <svg className="absolute left-3.5 w-4 h-4 text-volt-green" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15 8H9L12 2Z"/><path d="M12 22L9 16H15L12 22Z"/></svg>
-                      {showTripDestSuggestions && tripDestSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-[#111] border border-[#333] rounded-xl overflow-hidden z-[1010] shadow-2xl">
-                          {tripDestSuggestions.map((s, idx) => (
-                            <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0" onClick={() => { setTripDest(s.display_name.split(',')[0]); setShowTripDestSuggestions(false); }}>
-                              <span className="text-white font-bold block">{s.display_name.split(',')[0]}</span>
-                              <span className="text-xs text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button type="submit" disabled={isPlanningTrip} className="w-full bg-volt-green text-black py-2.5 rounded-xl text-xs font-bold hover:bg-[#b3cc00] transition-colors disabled:opacity-50 mt-1">
-                      {isPlanningTrip ? 'PLANNING ROUTE...' : 'FIND CHARGERS ALONG ROUTE'}
-                    </button>
-                  </form>
-                ) : (
-                  <div className="relative">
-                    <form onSubmit={handleSearch} className="relative flex items-center">
-                      <input
-                        type="text"
-                        placeholder="Search by location..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
-                        className="w-full bg-[#111] border border-[#333] text-white text-sm rounded-xl pl-10 pr-20 py-3 focus:outline-none focus:border-volt-green transition-colors shadow-inner"
-                      />
-                      <svg className="absolute left-3.5 w-5 h-5 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35" /></svg>
-                      <button type="submit" disabled={isSearching} className="absolute right-2 bg-volt-green text-black px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#b3cc00] transition-colors disabled:opacity-50">
-                        {isSearching ? '...' : 'SEARCH'}
-                      </button>
-                    </form>
-                    {showSuggestions && suggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-[#333] rounded-xl overflow-hidden z-[1010] shadow-2xl">
-                        {suggestions.map((s, idx) => (
-                          <div
-                            key={idx}
-                            className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors"
-                            onClick={() => handleSuggestionClick(s)}
-                          >
-                            <span className="text-white font-bold block">{s.display_name.split(',')[0]}</span>
-                            <span className="text-xs text-neutral-500 truncate block mt-0.5">{s.display_name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <button
-                  onClick={() => {
-                    setIsAutoFollow(true);
-                    if (location) {
-                      if (searchLocation) {
-                        setSearchLocation(null);
-                        setSearchQuery('');
-                        fetchStationsForLocation(location.lat, location.lng);
-                      }
-                      setViewState(prev => ({
-                        ...prev,
-                        longitude: location.lng,
-                        latitude: location.lat,
-                        zoom: isRouting ? 18 : 14,
-                        pitch: isRouting ? 65 : 0,
-                        bearing: isRouting ? heading : 0,
-                        transitionDuration: 1000
-                      }));
-                    }
-                  }}
-                  className="w-full flex items-center justify-center gap-2 bg-[#1c2c20] hover:bg-[#253a2a] border border-volt-green/30 text-volt-green py-2.5 rounded-xl text-[11px] font-bold tracking-widest transition-colors shadow-inner"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                  NAVIGATE TO LIVE LOCATION
-                </button>
-              </div>
 
               <div className="bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl flex-1 flex flex-col overflow-hidden pointer-events-auto">
                 <div className="flex justify-between items-center mb-5 shrink-0">
