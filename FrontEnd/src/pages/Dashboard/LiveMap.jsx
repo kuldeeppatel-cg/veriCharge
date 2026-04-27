@@ -162,7 +162,21 @@ export default function LiveMap() {
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 10000); // 10s tick
-    return () => clearInterval(interval);
+    
+    const handleClickOutside = (e) => {
+      // Close suggestions if clicking anywhere outside an input
+      if (e.target.tagName !== 'INPUT') {
+        setShowSuggestions(false);
+        setShowTripStartSuggestions(false);
+        setShowTripDestSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const API_KEYS = [
@@ -391,6 +405,8 @@ export default function LiveMap() {
 
     setIsPlanningTrip(true);
     setLoading(true);
+    setShowTripStartSuggestions(false);
+    setShowTripDestSuggestions(false);
     try {
       // Nominatim requires User-Agent
       const headers = { 'User-Agent': 'VeriChargeApp/1.0' };
@@ -459,7 +475,7 @@ export default function LiveMap() {
 
         if (allStations.length > 0) {
           // Remove duplicates based on station ID
-          const uniqueStations = Array.from(new Map(allStations.map(item => [item.ID, item])).values());
+          const uniqueStations = Array.from(new globalThis.Map(allStations.map(item => [item.ID, item])).values());
           setStations(uniqueStations);
         } else {
           alert("No charging stations found along this route.");
@@ -603,9 +619,10 @@ export default function LiveMap() {
             dragRotate={true}
             touchZoomRotate={true}
             touchPitch={true}
+            maxPitch={85}
           >
             {/* Native 3D Controls (Compass & Zoom) */}
-            <NavigationControl position="bottom-right" style={{ marginRight: 24, marginBottom: 90 }} showCompass={true} showZoom={true} />
+            <NavigationControl position="bottom-right" style={{ marginRight: 24, marginBottom: 90 }} showCompass={true} showZoom={true} visualizePitch={true} />
 
             {/* Status Banners for Location */}
             {locationError && !location && (
@@ -825,7 +842,7 @@ export default function LiveMap() {
                               {station.AddressInfo.Title}
                             </h4>
                             <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 shrink-0 ${isAvail ? 'bg-volt-green/20 text-volt-green' : status === 'OCCUPIED' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-[#333] text-neutral-500'}`}>
-                              {status === 'AVAILABLE' ? (power >= 150 ? 'FAST • FREE' : 'L2 • FREE') : status}
+                              {status === 'AVAILABLE' ? (power >= 150 ? 'FAST • AVAILABLE' : 'L2 • AVAILABLE') : status}
                             </span>
                           </div>
                           <p className="text-neutral-400 text-[10px] font-bold tracking-widest uppercase mb-3 truncate">
