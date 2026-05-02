@@ -16,22 +16,21 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem('token', data.token);
-        // Navigate to dashboard
-        navigate('/dashboard');
+      const storedUserString = localStorage.getItem('user');
+      if (storedUserString) {
+        const storedUser = JSON.parse(storedUserString);
+        if (storedUser.email === formData.email && storedUser.password === formData.password) {
+          localStorage.setItem('token', 'mock-jwt-token');
+          // Navigate to dashboard
+          navigate('/dashboard');
+        } else {
+          setError('Invalid credentials');
+        }
       } else {
-        setError(data.message || 'Invalid credentials');
+        setError('User not found');
       }
     } catch (err) {
-      setError('Server connection error');
+      setError('Error accessing local storage');
     }
   };
 

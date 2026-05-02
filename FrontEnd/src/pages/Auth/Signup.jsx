@@ -19,20 +19,10 @@ export default function Signup() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5000/api/auth/signup', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        navigate('/login');
-      } else {
-        setError(data.message || 'Something went wrong');
-      }
+      localStorage.setItem('user', JSON.stringify(formData));
+      navigate('/login');
     } catch (err) {
-      setError('Server connection error');
+      setError('Error saving credentials');
     }
   };
 
