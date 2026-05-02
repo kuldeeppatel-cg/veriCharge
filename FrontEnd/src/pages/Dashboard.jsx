@@ -68,8 +68,8 @@ export default function Dashboard() {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="absolute bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 bg-[#1c1c1c] border border-[#333] rounded-full p-2 pr-2 pl-6 flex items-center gap-6 shadow-2xl z-50 whitespace-nowrap">
-        <span className="text-white text-sm font-bold">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For Your ${user.vehicleModel}` : ''}</span>
+      <div className="absolute bottom-20 lg:bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 w-[90%] lg:w-auto bg-[#1c1c1c] border border-[#333] rounded-3xl lg:rounded-full p-4 lg:p-2 lg:pr-2 lg:pl-6 flex flex-col lg:flex-row items-center gap-4 lg:gap-6 shadow-2xl z-[4000]">
+        <span className="text-white text-[13px] lg:text-sm font-bold text-center">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For ${user.vehicleModel}` : ''}</span>
         <button 
           onClick={() => {
             if (!user) return alert("Please log in first!");
@@ -90,7 +90,7 @@ export default function Dashboard() {
             localStorage.setItem(historyKey, JSON.stringify([newSession, ...existingHistory]));
             alert(`Charge session completed! Logged ${newSession.energy}kWh to your history.`);
           }}
-          className="bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide"
+          className="w-full lg:w-auto bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide shrink-0"
         >
           START CHARGE SESSION
         </button>

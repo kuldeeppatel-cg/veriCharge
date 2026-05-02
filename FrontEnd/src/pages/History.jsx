@@ -112,8 +112,8 @@ export default function History() {
             </div>
 
             {/* Toolbar */}
-            <div className="flex justify-between items-center mb-6">
-              <div className="flex gap-3">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-6">
+              <div className="flex flex-wrap gap-2 md:gap-3 w-full md:w-auto">
                 <button className="bg-[#161616] border border-[#2c2c2c] rounded-lg px-4 py-2.5 text-sm text-neutral-300 flex items-center gap-2 hover:bg-[#222] transition-colors">
                   <svg className="w-4 h-4 text-neutral-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                   Last 30 Days
@@ -130,15 +130,15 @@ export default function History() {
                   <svg className="w-3 h-3 ml-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
                 </button>
               </div>
-              <button className="bg-transparent border border-volt-green text-volt-green rounded-lg px-4 py-2.5 text-[11px] font-bold tracking-widest uppercase flex items-center gap-2 hover:bg-volt-green/10 transition-colors">
+              <button className="w-full md:w-auto justify-center bg-transparent border border-volt-green text-volt-green rounded-lg px-4 py-2.5 text-[11px] font-bold tracking-widest uppercase flex items-center gap-2 hover:bg-volt-green/10 transition-colors mt-4 md:mt-0">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
                 EXPORT CSV
               </button>
             </div>
 
             {/* Data Table */}
-            <div className="bg-[#161616] border border-[#222] rounded-2xl overflow-hidden mb-6">
-              <table className="w-full text-left border-collapse">
+            <div className="bg-[#161616] border border-[#222] rounded-2xl overflow-x-auto mb-6">
+              <table className="w-full text-left border-collapse min-w-[800px]">
                 <thead>
                   <tr className="border-b border-[#2c2c2c]">
                     <th className="py-5 px-6 text-[10px] font-bold text-neutral-500 tracking-widest uppercase">DATE & TIME</th>
