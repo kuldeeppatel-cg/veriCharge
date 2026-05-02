@@ -1,8 +1,35 @@
-import React from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function Reliability() {
+  const [user, setUser] = useState(null);
+  const [veriPoints, setVeriPoints] = useState(0);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        setUser(parsedUser);
+        const pointsKey = `veriPoints_${parsedUser.email}`;
+        const savedPoints = localStorage.getItem(pointsKey);
+        if (savedPoints) {
+          setVeriPoints(parseInt(savedPoints));
+        }
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
+
+  const handleReportIssue = () => {
+    if (!user) return alert("Log in to report issues and earn VeriPoints.");
+    const newPoints = veriPoints + 50;
+    setVeriPoints(newPoints);
+    localStorage.setItem(`veriPoints_${user.email}`, newPoints);
+    alert(`Issue reported successfully! You earned 50 VeriPoints. Total: ${newPoints}`);
+  };
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
       
@@ -26,7 +53,8 @@ export default function Reliability() {
                   <h3 className="text-[10px] font-bold text-neutral-500 tracking-widest uppercase mb-4">CURRENT NETWORK HEALTH</h3>
                   <div className="flex items-baseline gap-3 mb-6">
                     <span className="text-xl font-bold text-white">VeriScore</span>
-                    <span className="text-5xl font-bold text-volt-green tracking-tighter">98.4</span>
+                    <span className="text-5xl font-bold text-volt-green tracking-tighter">{(98.4 + (veriPoints / 1000)).toFixed(1)}</span>
+                    <span className="text-xl font-bold text-neutral-500 ml-4">Points: {veriPoints}</span>
                   </div>
                   
                   <div className="h-1.5 w-full bg-[#222] rounded-full overflow-hidden mb-6">
@@ -201,9 +229,12 @@ export default function Reliability() {
                     <svg className="w-5 h-5 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
                   </div>
                   <p className="text-[11px] font-semibold opacity-80 mb-5 relative z-10 leading-relaxed">
-                    Report a broken charger to earn 50 VeriPoints and maintain community trust.
+                    Report a broken charger to earn 50 VeriPoints and maintain community trust. Current points: {veriPoints}
                   </p>
-                  <button className="w-full bg-[#111] hover:bg-black text-white rounded-lg py-3 text-[11px] font-bold tracking-wide transition-colors relative z-10">
+                  <button 
+                    onClick={handleReportIssue}
+                    className="w-full bg-[#111] hover:bg-black text-white rounded-lg py-3 text-[11px] font-bold tracking-wide transition-colors relative z-10"
+                  >
                     Report Issue
                   </button>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-[40px] rounded-full pointer-events-none"></div>
@@ -263,13 +294,18 @@ export default function Reliability() {
                 <h3 className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-3">VERIFIED USERS</h3>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex -space-x-2">
+                    {user?.fullName && (
+                      <div className="w-8 h-8 rounded-full border-2 border-[#161616] bg-volt-green flex items-center justify-center text-black font-bold text-[10px] shrink-0 z-10">
+                        {user.fullName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=33" alt="" />
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=47" alt="" />
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=12" alt="" />
                   </div>
                   <div className="bg-[#2c2c2c] text-white text-[9px] font-bold px-2 py-1 rounded-full">+12k</div>
                 </div>
-                <p className="text-[#666] text-[9px] font-semibold mt-auto">Active daily verifiers</p>
+                <p className="text-[#666] text-[9px] font-semibold mt-auto">{user?.fullName ? 'Including you' : 'Active daily verifiers'}</p>
               </div>
 
             </div>
@@ -280,3 +316,5 @@ export default function Reliability() {
     </div>
   );
 }
+
+

@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useRef } from 'react';
+
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
@@ -36,6 +38,17 @@ const getTravelTimeMins = (distanceMeters) => {
 };
 
 export default function LiveMap() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
+
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState(null);
@@ -54,7 +67,9 @@ export default function LiveMap() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [locationError, setLocationError] = useState(false);
+  const [isManualLocation, setIsManualLocation] = useState(false);
   const locationRef = useRef(null);
+  const isManualLocationRef = useRef(false);
 
   // Trip Planner State
   const [tripPlanMode, setTripPlanMode] = useState(false);
@@ -79,7 +94,9 @@ export default function LiveMap() {
           setTripStartSuggestions(data);
           setShowTripStartSuggestions(true);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Trip start suggestion error:", err);
+      }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [tripStart]);
@@ -97,7 +114,9 @@ export default function LiveMap() {
           setTripDestSuggestions(data);
           setShowTripDestSuggestions(true);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Trip dest suggestion error:", err);
+      }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [tripDest]);
@@ -144,7 +163,6 @@ export default function LiveMap() {
 
     fetchStationsForLocation(lat, lng);
   };
-  const navigate = useNavigate();
 
   const [viewState, setViewState] = useState({
     longitude: -122.4194,
@@ -159,7 +177,7 @@ export default function LiveMap() {
   useEffect(() => { isRoutingRef.current = isRouting; }, [isRouting]);
   useEffect(() => { isAutoFollowRef.current = isAutoFollow; }, [isAutoFollow]);
 
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 10000); // 10s tick
     
@@ -190,18 +208,41 @@ export default function LiveMap() {
 
   // Watch user location and heading
   useEffect(() => {
+    // Fast fallback using IP geolocation
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (!locationRef.current && data && data.latitude && data.longitude) {
+          const newLat = data.latitude;
+          const newLng = data.longitude;
+          setLocation({ lat: newLat, lng: newLng });
+          locationRef.current = { lat: newLat, lng: newLng };
+          setLocationError(false);
+          if (isAutoFollowRef.current) {
+            setViewState(prev => ({
+              ...prev,
+              longitude: newLng,
+              latitude: newLat,
+              zoom: 14,
+              transitionDuration: 1000
+            }));
+          }
+        }
+      })
+      .catch(err => console.error("IP Fallback Error:", err));
+
     if (!navigator.geolocation) {
-      setLocationError(true);
+      if (!locationRef.current) setLocationError(true);
       return;
     }
 
     let lastLat = null;
     let lastLng = null;
 
-
-
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
+        if (isManualLocationRef.current) return; // Ignore GPS if user manually dragged marker
+
         const newLat = position.coords.latitude;
         const newLng = position.coords.longitude;
 
@@ -250,9 +291,11 @@ export default function LiveMap() {
       },
       (error) => {
         console.error("Location error:", error);
-        setLocationError(true);
+        if (!locationRef.current) {
+          setLocationError(true);
+        }
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
@@ -260,14 +303,12 @@ export default function LiveMap() {
 
   const fetchStationsForLocation = async (lat, lng) => {
     setLoading(true);
-    let success = false;
     for (const key of API_KEYS) {
       try {
         const res = await fetch(`https://api.openchargemap.io/v3/poi?key=${key}&latitude=${lat}&longitude=${lng}&distance=30&distanceunit=KM&maxresults=30`);
         if (!res.ok) continue;
         const data = await res.json();
         setStations(data);
-        success = true;
         break;
       } catch (err) {
         console.error(`API Fetch Error with key ${key}:`, err);
@@ -643,6 +684,19 @@ export default function LiveMap() {
               longitude={location.lng}
               latitude={location.lat}
               anchor="center"
+              draggable={!isRouting}
+              onDragStart={(e) => {
+                e.originalEvent?.stopPropagation();
+                setIsManualLocation(true);
+                isManualLocationRef.current = true;
+              }}
+              onDragEnd={(e) => {
+                setIsManualLocation(true);
+                isManualLocationRef.current = true;
+                setLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng });
+                locationRef.current = { lat: e.lngLat.lat, lng: e.lngLat.lng };
+                fetchStationsForLocation(e.lngLat.lat, e.lngLat.lng);
+              }}
               pitchAlignment={isRouting ? "map" : "viewport"}
               rotationAlignment={isRouting ? "map" : "viewport"}
               rotation={isRouting ? heading : 0}
@@ -654,7 +708,12 @@ export default function LiveMap() {
               ) : (
                 <div className="flex flex-col items-center">
                   <div className="w-5 h-5 bg-blue-500 rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(59,130,246,0.6)] animate-pulse"></div>
-                  <div className="text-blue-200 text-[9px] font-bold mt-1 uppercase tracking-widest bg-black/70 px-1.5 py-0.5 rounded">You</div>
+                  <div className="text-blue-200 text-[9px] font-bold mt-1 uppercase tracking-widest bg-black/70 px-1.5 py-0.5 rounded">{user?.fullName ? user.fullName.split(' ')[0] : 'You'}</div>
+                  {!isManualLocation && !isRouting && (
+                    <div className="text-white/70 text-[7px] font-bold mt-0.5 uppercase tracking-widest bg-black/50 px-1 py-0.5 rounded shadow-xl whitespace-nowrap">
+                      (Drag to adjust)
+                    </div>
+                  )}
                 </div>
               )}
             </Marker>
@@ -738,6 +797,30 @@ export default function LiveMap() {
                 </span>
               </div>
             </div>
+          )}
+
+          {/* REVERT TO GPS BUTTON */}
+          {isManualLocation && (
+            <button
+              onClick={() => {
+                setIsManualLocation(false);
+                isManualLocationRef.current = false;
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition((position) => {
+                    const newLat = position.coords.latitude;
+                    const newLng = position.coords.longitude;
+                    setLocation({ lat: newLat, lng: newLng });
+                    locationRef.current = { lat: newLat, lng: newLng };
+                    setViewState(prev => ({ ...prev, longitude: newLng, latitude: newLat, zoom: 14, transitionDuration: 1000 }));
+                    fetchStationsForLocation(newLat, newLng);
+                  }, () => {}, { enableHighAccuracy: true });
+                }
+              }}
+              className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-volt-green text-black px-6 py-3 rounded-full font-bold text-xs tracking-widest uppercase shadow-[0_0_20px_rgba(204,230,0,0.4)] hover:bg-[#b3cc00] transition-colors z-[1000] flex items-center gap-2 animate-in slide-in-from-bottom-4"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              Recenter GPS
+            </button>
           )}
 
           {/* RESUME NAVIGATION BUTTON */}
@@ -975,3 +1058,4 @@ export default function LiveMap() {
     </div>
   );
 }
+

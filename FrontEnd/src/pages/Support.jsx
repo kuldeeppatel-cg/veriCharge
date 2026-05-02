@@ -1,8 +1,20 @@
-import React from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function Support() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
   return (
     <div className="flex h-screen w-screen bg-[#111111] font-inter text-white overflow-hidden">
       
@@ -19,7 +31,7 @@ export default function Support() {
             
             {/* Hero Section */}
             <div className="text-center mb-12 mt-6">
-              <h1 className="text-3xl font-bold text-white mb-4 tracking-tight">How can we help you today?</h1>
+              <h1 className="text-3xl font-bold text-white mb-4 tracking-tight">{user?.fullName ? `How can we help you today, ${user.fullName.split(' ')[0]}?` : 'How can we help you today?'}</h1>
               <p className="text-[#888] text-[13px] max-w-lg mx-auto leading-relaxed mb-8">
                 Search our knowledge base for instant answers or reach out to our dedicated technical team for high-voltage assistance.
               </p>
@@ -203,3 +215,4 @@ export default function Support() {
     </div>
   );
 }
+

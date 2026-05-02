@@ -1,6 +1,20 @@
-import React from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+
+
+import { useState, useEffect } from 'react';
 
 export default function Header({ title, children }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
+
   return (
     <header className="h-[72px] border-b border-[#222] flex items-center justify-between px-8 bg-[#0e0e0e] shrink-0">
       
@@ -29,10 +43,19 @@ export default function Header({ title, children }) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </button>
-        <div className="w-8 h-8 rounded-full border border-[#333] overflow-hidden ml-2">
-          <img src="https://i.pravatar.cc/150?img=11" alt="User" className="w-full h-full object-cover" />
+        
+        {/* Dynamic User Profile */}
+        <div className="flex items-center gap-3 ml-2 border-l border-[#333] pl-5">
+          <div className="flex flex-col items-end justify-center hidden sm:flex">
+            <span className="text-white text-[13px] font-bold">{user?.fullName || 'Guest User'}</span>
+            <span className="text-volt-green text-[9px] font-bold tracking-widest uppercase">{user?.vehicleModel || 'No Vehicle'}</span>
+          </div>
+          <div className="w-9 h-9 rounded-full border border-volt-green/30 bg-[#161616] flex items-center justify-center text-volt-green font-bold shadow-[0_0_10px_rgba(204,230,0,0.1)]">
+            {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'G'}
+          </div>
         </div>
       </div>
     </header>
   );
 }
+

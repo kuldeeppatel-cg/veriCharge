@@ -1,5 +1,5 @@
-import React from 'react';
-import evChargingImg from '../../assets/ev_charging.png';
+
+import evChargingImg from '../assets/ev_charging.png';
 
 export default function Amenities() {
   return (
