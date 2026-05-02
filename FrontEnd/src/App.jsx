@@ -9,6 +9,8 @@ import Reliability from './pages/Reliability'
 import Support from './pages/Support'
 import './App.css'
 
+import MobileNav from './components/MobileNav'
+
 function App() {
   return (
     <BrowserRouter>
@@ -22,6 +24,7 @@ function App() {
         <Route path="/reliability" element={<Reliability />} />
         <Route path="/support" element={<Support />} />
       </Routes>
+      <MobileNav />
     </BrowserRouter>
   )
 }

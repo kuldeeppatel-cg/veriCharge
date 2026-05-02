@@ -586,8 +586,8 @@ export default function LiveMap() {
 
       <div className="flex flex-col flex-1 h-screen relative">
         <Header>
-          <div className="flex items-center gap-4 w-full max-w-[800px] ml-4">
-            <div className="bg-[#111] border border-[#333] rounded-full flex p-1 shrink-0 h-[40px]">
+          <div className="flex items-center gap-2 md:gap-4 w-full max-w-[800px] ml-1 md:ml-4">
+            <div className="bg-[#111] border border-[#333] rounded-full hidden md:flex p-1 shrink-0 h-[40px]">
               <button onClick={() => setTripPlanMode(false)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${!tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>AREA</button>
               <button onClick={() => setTripPlanMode(true)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>TRIP</button>
             </div>
@@ -848,7 +848,7 @@ export default function LiveMap() {
           )}
 
           {/* Locate Me Bottom Right */}
-          <div className="absolute bottom-8 right-6 z-[1000]">
+          <div className="absolute md:bottom-8 bottom-[58%] right-6 z-[1000] transition-all">
             <button
               onClick={() => {
                 setIsAutoFollow(true);
@@ -880,11 +880,12 @@ export default function LiveMap() {
 
           {/* Left Floating Panel (Nearby Stations) */}
           {!isRouting && (
-            <div className="absolute top-6 left-6 md:w-[360px] w-full px-6 md:px-0 flex flex-col gap-4 z-[1000] h-[calc(100%-48px)] pointer-events-none">
+            <div className="absolute bottom-0 md:bottom-auto md:top-6 left-0 md:left-6 w-full md:w-[360px] flex flex-col gap-4 z-[1000] h-[55%] md:h-[calc(100%-48px)] pointer-events-none transition-transform">
 
 
 
-              <div className="bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl flex-1 flex flex-col overflow-hidden pointer-events-auto">
+              <div className="bg-[#161616]/95 backdrop-blur-xl border-t border-[#2c2c2c] md:border md:rounded-2xl rounded-t-[2rem] p-5 md:shadow-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex-1 flex flex-col overflow-hidden pointer-events-auto">
+                <div className="w-12 h-1.5 bg-[#333] rounded-full mx-auto mb-4 md:hidden shrink-0"></div>
                 <div className="flex justify-between items-center mb-5 shrink-0">
                   <h3 className="text-white font-semibold text-lg">{tripPlanMode && routeCoords ? 'Stations on Route' : searchLocation ? 'Searched Area' : 'Nearby Stations'}</h3>
                 </div>
@@ -966,7 +967,8 @@ export default function LiveMap() {
 
           {/* Selected Station Overlay */}
           {selectedStation && (
-            <div className="absolute bottom-8 right-24 w-[360px] bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl z-[1000] flex flex-col gap-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
+            <div className="absolute bottom-0 md:bottom-8 right-0 md:right-24 w-full md:w-[360px] bg-[#161616]/95 backdrop-blur-xl border-t border-[#2c2c2c] md:border rounded-t-[2rem] md:rounded-2xl p-5 md:shadow-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-[1010] flex flex-col gap-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
+              <div className="w-12 h-1.5 bg-[#333] rounded-full mx-auto mb-1 md:hidden shrink-0"></div>
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-xl bg-[#222] border border-[#333] flex items-center justify-center shrink-0">
                   <svg className="w-7 h-7 text-volt-green" viewBox="0 0 24 24" fill="currentColor">
