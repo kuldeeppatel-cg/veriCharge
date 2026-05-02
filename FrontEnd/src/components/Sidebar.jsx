@@ -1,14 +1,27 @@
-import React from 'react';
+
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function Sidebar({ activePage }) {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch {
+        console.error('Parse error');
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <aside className="w-[260px] h-screen bg-[#0e0e0e] border-r border-[#222] flex flex-col justify-between hidden lg:flex shrink-0">
       <div>
-        {/* Logo */}
         <div className="p-8 pb-6">
           <h1 className="text-volt-green text-xl font-bold tracking-tight mb-1 uppercase">VERICHARGE PRO</h1>
-          <p className="text-[9px] text-neutral-500 font-bold tracking-[0.2em] uppercase">Network Active</p>
+          <p className="text-[9px] text-neutral-500 font-bold tracking-[0.2em] uppercase">{user?.vehicleModel ? `${user.vehicleModel} CONNECTED` : 'NETWORK ACTIVE'}</p>
         </div>
 
         {/* Navigation */}

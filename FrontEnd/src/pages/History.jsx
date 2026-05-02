@@ -1,8 +1,20 @@
-import React, { useState } from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function History() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
+
   const [historyData] = useState([
     {
       id: 1,
@@ -83,9 +95,9 @@ export default function History() {
             {/* Page Header & Top Navigation */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8 border-b border-[#222] pb-6">
               <div>
-                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Charging History</h1>
+                <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">{user?.fullName ? `${user.fullName.split(' ')[0]}'s History` : 'Charging History'}</h1>
                 <p className="text-[#999] text-[15px]">
-                  Detailed record of your network utilization and energy footprint.
+                  Detailed record of your network utilization and energy footprint {user?.vehicleModel ? `for your ${user.vehicleModel}` : ''}.
                 </p>
               </div>
               
@@ -266,3 +278,4 @@ export default function History() {
     </div>
   );
 }
+

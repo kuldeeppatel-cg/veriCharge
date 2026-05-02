@@ -1,6 +1,20 @@
-import React from 'react';
+
+
+import { useState, useEffect } from 'react';
 
 export default function CommunityReports() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch {
+        console.error('Parse error');
+      }
+    }
+  }, []);
   return (
     <div className="bg-[#161616] border border-[#222] rounded-2xl p-8 flex-1">
       <div className="flex justify-between items-center mb-6">
@@ -13,8 +27,10 @@ export default function CommunityReports() {
         <div className="bg-[#1c1c1c] border border-[#2c2c2c] rounded-xl p-5">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-[#333]"></div>
-              <span className="text-white text-sm font-bold">Model_3_Pioneer</span>
+              <div className="w-5 h-5 rounded-full bg-[#333] flex items-center justify-center text-[10px] font-bold text-white">
+                {user?.fullName ? user.fullName.charAt(0).toUpperCase() : 'M'}
+              </div>
+              <span className="text-white text-sm font-bold">{user?.fullName || 'Model_3_Pioneer'}</span>
               <span className="bg-volt-green text-black px-1.5 py-0.5 rounded text-[8px] font-bold tracking-wider uppercase">VERIFIED STAY</span>
             </div>
             <span className="text-[#666] text-xs">14 mins ago</span>

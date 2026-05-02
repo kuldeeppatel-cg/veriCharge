@@ -1,8 +1,20 @@
-import React from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 
 export default function Reliability() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
       
@@ -263,13 +275,18 @@ export default function Reliability() {
                 <h3 className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-3">VERIFIED USERS</h3>
                 <div className="flex items-center gap-2 mb-2">
                   <div className="flex -space-x-2">
+                    {user?.fullName && (
+                      <div className="w-8 h-8 rounded-full border-2 border-[#161616] bg-volt-green flex items-center justify-center text-black font-bold text-[10px] shrink-0 z-10">
+                        {user.fullName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=33" alt="" />
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=47" alt="" />
                     <img className="w-8 h-8 rounded-full border-2 border-[#161616] object-cover" src="https://i.pravatar.cc/100?img=12" alt="" />
                   </div>
                   <div className="bg-[#2c2c2c] text-white text-[9px] font-bold px-2 py-1 rounded-full">+12k</div>
                 </div>
-                <p className="text-[#666] text-[9px] font-semibold mt-auto">Active daily verifiers</p>
+                <p className="text-[#666] text-[9px] font-semibold mt-auto">{user?.fullName ? 'Including you' : 'Active daily verifiers'}</p>
               </div>
 
             </div>
@@ -280,3 +297,4 @@ export default function Reliability() {
     </div>
   );
 }
+

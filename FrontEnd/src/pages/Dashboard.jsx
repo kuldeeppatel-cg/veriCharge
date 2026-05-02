@@ -1,4 +1,5 @@
-import React from 'react';
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import StationOverview from '../components/StationOverview';
@@ -8,7 +9,19 @@ import Amenities from '../components/Amenities';
 import TechnicalSpecs from '../components/TechnicalSpecs';
 import CommunityReports from '../components/CommunityReports';
 
+import { useState, useEffect } from 'react';
+
 export default function Dashboard() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
   return (
     <div className="flex h-screen w-screen bg-[#121212] font-inter text-white overflow-hidden">
       
@@ -51,8 +64,8 @@ export default function Dashboard() {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="absolute bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 bg-[#1c1c1c] border border-[#333] rounded-full p-2 pr-2 pl-6 flex items-center gap-6 shadow-2xl z-50">
-        <span className="text-white text-sm font-bold">Hub V3 - 1 Stall Available</span>
+      <div className="absolute bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 bg-[#1c1c1c] border border-[#333] rounded-full p-2 pr-2 pl-6 flex items-center gap-6 shadow-2xl z-50 whitespace-nowrap">
+        <span className="text-white text-sm font-bold">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For Your ${user.vehicleModel}` : ''}</span>
         <button className="bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide">
           START CHARGE SESSION
         </button>
@@ -61,3 +74,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

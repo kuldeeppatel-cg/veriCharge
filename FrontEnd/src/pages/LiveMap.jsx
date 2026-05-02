@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useState, useEffect, useRef } from 'react';
+
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
 import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
@@ -36,6 +38,17 @@ const getTravelTimeMins = (distanceMeters) => {
 };
 
 export default function LiveMap() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        setUser(JSON.parse(userData));
+      } catch { console.error('Parse error'); }
+    }
+  }, []);
+
   const [stations, setStations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState(null);
@@ -79,7 +92,9 @@ export default function LiveMap() {
           setTripStartSuggestions(data);
           setShowTripStartSuggestions(true);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Trip start suggestion error:", err);
+      }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [tripStart]);
@@ -97,7 +112,9 @@ export default function LiveMap() {
           setTripDestSuggestions(data);
           setShowTripDestSuggestions(true);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Trip dest suggestion error:", err);
+      }
     }, 500);
     return () => clearTimeout(delayDebounceFn);
   }, [tripDest]);
@@ -144,7 +161,6 @@ export default function LiveMap() {
 
     fetchStationsForLocation(lat, lng);
   };
-  const navigate = useNavigate();
 
   const [viewState, setViewState] = useState({
     longitude: -122.4194,
@@ -159,7 +175,7 @@ export default function LiveMap() {
   useEffect(() => { isRoutingRef.current = isRouting; }, [isRouting]);
   useEffect(() => { isAutoFollowRef.current = isAutoFollow; }, [isAutoFollow]);
 
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 10000); // 10s tick
     
@@ -260,14 +276,12 @@ export default function LiveMap() {
 
   const fetchStationsForLocation = async (lat, lng) => {
     setLoading(true);
-    let success = false;
     for (const key of API_KEYS) {
       try {
         const res = await fetch(`https://api.openchargemap.io/v3/poi?key=${key}&latitude=${lat}&longitude=${lng}&distance=30&distanceunit=KM&maxresults=30`);
         if (!res.ok) continue;
         const data = await res.json();
         setStations(data);
-        success = true;
         break;
       } catch (err) {
         console.error(`API Fetch Error with key ${key}:`, err);
@@ -654,7 +668,7 @@ export default function LiveMap() {
               ) : (
                 <div className="flex flex-col items-center">
                   <div className="w-5 h-5 bg-blue-500 rounded-full border-[3px] border-white shadow-[0_0_15px_rgba(59,130,246,0.6)] animate-pulse"></div>
-                  <div className="text-blue-200 text-[9px] font-bold mt-1 uppercase tracking-widest bg-black/70 px-1.5 py-0.5 rounded">You</div>
+                  <div className="text-blue-200 text-[9px] font-bold mt-1 uppercase tracking-widest bg-black/70 px-1.5 py-0.5 rounded">{user?.fullName ? user.fullName.split(' ')[0] : 'You'}</div>
                 </div>
               )}
             </Marker>
@@ -975,3 +989,4 @@ export default function LiveMap() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import evChargingImg from '../../assets/ev_charging.png';
 
@@ -21,7 +21,7 @@ export default function Signup() {
     try {
       localStorage.setItem('user', JSON.stringify(formData));
       navigate('/login');
-    } catch (err) {
+    } catch {
       setError('Error saving credentials');
     }
   };
