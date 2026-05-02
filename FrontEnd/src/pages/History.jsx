@@ -72,7 +72,7 @@ export default function History() {
         <Header />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 lg:p-10 relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-[120px] relative">
           <div className="max-w-[1200px] mx-auto">
             
             {/* Page Header & Top Navigation */}
@@ -85,7 +85,7 @@ export default function History() {
               </div>
               
               {/* Summary Metrics */}
-              <div className="flex gap-4">
+              <div className="grid grid-cols-2 md:flex gap-4 w-full md:w-auto">
                 <div className="bg-[#161616] border border-[#222] rounded-xl p-4 min-w-[120px]">
                   <p className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-1">TOTAL ENERGY</p>
                   <div className="flex items-baseline gap-1">

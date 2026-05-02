@@ -35,7 +35,7 @@ export default function Dashboard() {
         <Header />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 lg:p-10 pb-[120px] relative">
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-[120px] relative">
           <div className="max-w-[1200px] mx-auto">
             
             <StationOverview />
