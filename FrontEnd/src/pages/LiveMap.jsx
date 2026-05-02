@@ -208,15 +208,36 @@ export default function LiveMap() {
 
   // Watch user location and heading
   useEffect(() => {
+    // Fast fallback using IP geolocation
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (!locationRef.current && data && data.latitude && data.longitude) {
+          const newLat = data.latitude;
+          const newLng = data.longitude;
+          setLocation({ lat: newLat, lng: newLng });
+          locationRef.current = { lat: newLat, lng: newLng };
+          setLocationError(false);
+          if (isAutoFollowRef.current) {
+            setViewState(prev => ({
+              ...prev,
+              longitude: newLng,
+              latitude: newLat,
+              zoom: 14,
+              transitionDuration: 1000
+            }));
+          }
+        }
+      })
+      .catch(err => console.error("IP Fallback Error:", err));
+
     if (!navigator.geolocation) {
-      setLocationError(true);
+      if (!locationRef.current) setLocationError(true);
       return;
     }
 
     let lastLat = null;
     let lastLng = null;
-
-
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
@@ -270,9 +291,11 @@ export default function LiveMap() {
       },
       (error) => {
         console.error("Location error:", error);
-        setLocationError(true);
+        if (!locationRef.current) {
+          setLocationError(true);
+        }
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 5000 }
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
 
     return () => navigator.geolocation.clearWatch(watchId);
