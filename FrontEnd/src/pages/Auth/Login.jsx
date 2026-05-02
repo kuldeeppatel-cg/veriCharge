@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import SEO from '../../components/SEO';
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -36,6 +37,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-screen bg-[#0e0e0e] flex flex-col justify-center items-center font-inter text-white px-4 relative overflow-hidden">
+      <SEO title="Login" description="Sign in to your VeriCharge account to manage your EV charging sessions and track your history." />
       
       {/* Subtle background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-volt-green/5 rounded-full blur-[100px] pointer-events-none"></div>

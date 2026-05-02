@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import SEO from '../components/SEO';
 
 export default function Support() {
   const [user, setUser] = useState(null);
@@ -17,6 +18,7 @@ export default function Support() {
   }, []);
   return (
     <div className="flex h-screen w-screen bg-[#111111] font-inter text-white overflow-hidden">
+      <SEO title="Help & Support" description="Get 24/7 support for EV charging issues, view FAQs, and manage your VeriCharge account." />
       
       {/* Sidebar */}
       <Sidebar activePage="support" />
