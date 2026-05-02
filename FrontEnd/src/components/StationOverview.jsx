@@ -20,14 +20,14 @@ export default function StationOverview() {
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
-        <button className="bg-white text-black font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-gray-200 transition-colors">
+      <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0">
+        <button className="flex-1 md:flex-none justify-center bg-white text-black font-bold px-6 py-3 rounded-lg flex items-center gap-2 hover:bg-gray-200 transition-colors">
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
           Route Now
         </button>
-        <button className="w-12 h-12 flex items-center justify-center bg-[#1c1c1c] border border-[#333] rounded-lg text-neutral-400 hover:text-white hover:border-[#555] transition-colors">
+        <button className="w-12 h-12 shrink-0 flex items-center justify-center bg-[#1c1c1c] border border-[#333] rounded-lg text-neutral-400 hover:text-white hover:border-[#555] transition-colors">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>

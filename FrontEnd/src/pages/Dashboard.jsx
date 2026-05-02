@@ -26,13 +26,13 @@ export default function Dashboard() {
     <div className="flex h-screen w-screen bg-[#121212] font-inter text-white overflow-hidden">
       
       {/* Fixed Sidebar */}
-      <Sidebar />
+      <Sidebar activePage="station" />
 
       {/* Main Layout Area */}
-      <div className="flex flex-col flex-1 h-screen overflow-hidden">
+      <div className="flex flex-col flex-1 h-screen overflow-hidden relative">
         
         {/* Fixed Header */}
-        <Header />
+        <Header title="STATION DETAILS" />
 
         {/* Scrollable Content Area */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-[120px] relative">
@@ -42,21 +42,25 @@ export default function Dashboard() {
 
             {/* 3-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(204,230,0,0.1)] transition-all duration-300 rounded-2xl">
                 <SystemIntegrity />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
                 <LiveQueue />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
                 <Amenities />
               </div>
             </div>
 
             {/* Bottom 2-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TechnicalSpecs />
-              <CommunityReports />
+              <div className="hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
+                <TechnicalSpecs />
+              </div>
+              <div className="hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
+                <CommunityReports />
+              </div>
             </div>
 
           </div>
