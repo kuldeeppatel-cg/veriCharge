@@ -26,7 +26,7 @@ export default function Support() {
         <Header title="SUPPORT CENTER" />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto relative flex flex-col">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden relative flex flex-col">
           <div className="max-w-[1000px] w-full mx-auto p-4 md:p-8 lg:p-12 pb-[120px] flex-1">
             
             {/* Hero Section */}

@@ -4,7 +4,7 @@ export default function StationOverview() {
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
       <div>
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="bg-volt-green text-black px-2 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase">SUPERCHARGER</span>
           <span className="text-[#888] text-[11px] font-medium flex items-center gap-1">
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 
-export default function Header({ title, children }) {
+export default function Header({ title, children, hideRightOnMobile }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -20,12 +20,12 @@ export default function Header({ title, children }) {
       
       {/* Title / Children */}
       <div className="flex-1 flex items-center min-w-0 pr-2">
-        {title && <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mr-2 md:mr-4 truncate">{title}</h2>}
+        {title && <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mr-2 md:mr-4 truncate hidden md:block">{title}</h2>}
         {children}
       </div>
 
       {/* Right Icons */}
-      <div className="flex items-center gap-3 md:gap-5 shrink-0">
+      <div className={`flex items-center gap-3 md:gap-5 shrink-0 ${hideRightOnMobile ? 'hidden md:flex' : 'flex'}`}>
         <button className="text-neutral-400 hover:text-white transition-colors relative hidden sm:block">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />

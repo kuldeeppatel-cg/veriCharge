@@ -72,7 +72,7 @@ export default function History() {
         <Header />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 lg:p-10 pb-[120px] relative">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 lg:p-10 pb-[120px] relative">
           <div className="max-w-[1200px] mx-auto">
             
             {/* Page Header & Top Navigation */}
@@ -86,25 +86,25 @@ export default function History() {
               
               {/* Summary Metrics */}
               <div className="grid grid-cols-2 md:flex gap-4 w-full md:w-auto">
-                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 min-w-[120px]">
+                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 w-full md:min-w-[120px]">
                   <p className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-1">TOTAL ENERGY</p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-white">{totalEnergy}</span>
                     <span className="text-xs text-neutral-400">kWh</span>
                   </div>
                 </div>
-                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 min-w-[120px]">
+                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 w-full md:min-w-[120px]">
                   <p className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-1">CARBON OFFSET</p>
                   <div className="flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-volt-green">{totalCarbon}</span>
                     <span className="text-xs text-neutral-400">kg</span>
                   </div>
                 </div>
-                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 min-w-[120px]">
+                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 w-full md:min-w-[120px]">
                   <p className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-1">LIFETIME COST</p>
                   <span className="text-2xl font-bold text-white">${totalCost}</span>
                 </div>
-                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 min-w-[120px]">
+                <div className="bg-[#161616] border border-[#222] rounded-xl p-4 w-full md:min-w-[120px]">
                   <p className="text-[9px] font-bold text-neutral-500 tracking-widest uppercase mb-1">EFFICIENCY</p>
                   <span className="text-2xl font-bold text-white">{efficiency}%</span>
                 </div>
@@ -136,9 +136,8 @@ export default function History() {
               </button>
             </div>
 
-            {/* Data Table */}
-            {/* Data Table */}
-            <div className="bg-[#161616] border border-[#222] rounded-2xl mb-6 flex flex-col">
+            {/* Desktop Data Table */}
+            <div className="hidden md:flex bg-[#161616] border border-[#222] rounded-2xl mb-6 flex-col w-full overflow-hidden">
               <div className="overflow-x-auto w-full">
                 <table className="w-full text-left border-collapse min-w-[800px]">
                   <thead>
@@ -211,6 +210,59 @@ export default function History() {
                   <button className="bg-[#222] border border-[#333] text-neutral-400 rounded-md px-3 py-1.5 text-[10px] font-bold hover:bg-[#333] hover:text-white transition-colors">NEXT</button>
                 </div>
               </div>
+            </div>
+
+            {/* Mobile Data Cards */}
+            <div className="flex md:hidden flex-col gap-4 mb-6">
+              {historyData.map((session) => (
+                <div key={session.id} className="bg-[#161616] border border-[#222] rounded-2xl p-5 flex flex-col gap-4">
+                  
+                  {/* Header: Station & Status */}
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded border flex items-center justify-center shrink-0 ${session.isFast ? 'bg-[#1c2c20] border-[#2a4530]' : 'bg-[#222] border-[#333]'}`}>
+                        {session.isFast ? (
+                          <svg className="w-4 h-4 text-volt-green" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        ) : (
+                          <svg className="w-4 h-4 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        )}
+                      </div>
+                      <div>
+                        <div className="font-bold text-white text-sm mb-1">{session.station}</div>
+                        <span className="bg-[#2c2c2c] text-neutral-300 px-1.5 py-0.5 rounded text-[8px] font-bold tracking-widest uppercase">{session.type}</span>
+                      </div>
+                    </div>
+                    <span className="bg-volt-green/10 text-volt-green border border-volt-green/20 px-2 py-0.5 rounded text-[8px] font-bold tracking-widest uppercase shrink-0">
+                      {session.status}
+                    </span>
+                  </div>
+
+                  {/* Body: Date, Energy, Cost */}
+                  <div className="grid grid-cols-2 gap-4 bg-[#111] rounded-xl p-3 border border-[#222]">
+                    <div>
+                      <span className="text-[#666] text-[9px] font-bold uppercase tracking-widest block mb-1">Date & Time</span>
+                      <div className="font-semibold text-white text-xs">{session.date}</div>
+                      <div className="text-neutral-500 text-[10px]">{session.time}</div>
+                    </div>
+                    <div>
+                      <span className="text-[#666] text-[9px] font-bold uppercase tracking-widest block mb-1">Total Cost</span>
+                      <div className="font-semibold text-white text-sm">${session.cost.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <span className="text-[#666] text-[9px] font-bold uppercase tracking-widest block mb-1">Energy Delivered</span>
+                      <div className="font-semibold text-white text-xs">{session.energy.toFixed(1)} <span className="text-[10px] text-neutral-500">kWh</span></div>
+                    </div>
+                    <div>
+                      <span className="text-[#666] text-[9px] font-bold uppercase tracking-widest block mb-1">Carbon Saved</span>
+                      <div className="font-semibold text-volt-green text-xs flex items-center gap-1">
+                        <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+                        {session.carbon.toFixed(1)} kg
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              ))}
             </div>
 
             {/* Bottom Insight Cards */}
