@@ -685,12 +685,10 @@ export default function LiveMap() {
               latitude={location.lat}
               anchor="center"
               draggable={!isRouting}
-              onDragStart={() => {
+              onDragStart={(e) => {
+                e.originalEvent?.stopPropagation();
                 setIsManualLocation(true);
                 isManualLocationRef.current = true;
-              }}
-              onDrag={(e) => {
-                setLocation({ lat: e.lngLat.lat, lng: e.lngLat.lng });
               }}
               onDragEnd={(e) => {
                 setIsManualLocation(true);
