@@ -1,12 +1,12 @@
 import React from 'react';
-import Sidebar from '../../components/Sidebar';
-import Header from '../../components/Header';
-import StationOverview from '../../components/dashboard/StationOverview';
-import SystemIntegrity from '../../components/dashboard/SystemIntegrity';
-import LiveQueue from '../../components/dashboard/LiveQueue';
-import Amenities from '../../components/dashboard/Amenities';
-import TechnicalSpecs from '../../components/dashboard/TechnicalSpecs';
-import CommunityReports from '../../components/dashboard/CommunityReports';
+import Sidebar from '../components/Sidebar';
+import Header from '../components/Header';
+import StationOverview from '../components/StationOverview';
+import SystemIntegrity from '../components/SystemIntegrity';
+import LiveQueue from '../components/LiveQueue';
+import Amenities from '../components/Amenities';
+import TechnicalSpecs from '../components/TechnicalSpecs';
+import CommunityReports from '../components/CommunityReports';
 
 export default function Dashboard() {
   return (
