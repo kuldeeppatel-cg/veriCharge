@@ -4,6 +4,12 @@
 
   **Next-Generation EV Infrastructure & Smart Queue Management Platform**
 
+  [![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-success?style=for-the-badge&logo=vercel)](https://vericharge.vercel.app/)
+  [![Postman Documentation](https://img.shields.io/badge/Postman-API_Docs-orange?style=for-the-badge&logo=postman)](https://documenter.getpostman.com/view/50839348/2sBXqKof19)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+
+  ### 🌐 [Explore the Live Demo](https://vericharge.vercel.app/) | 📄 [View API Documentation](https://documenter.getpostman.com/view/50839348/2sBXqKof19)
+
 </div>
 
 ---
@@ -25,40 +31,47 @@ EV drivers frequently experience **"range anxiety"**—the fear of running out o
 
 To power the live data ecosystem, VeriCharge seamlessly orchestrates several powerful third-party APIs:
 
-- **[OpenChargeMap API](https://openchargemap.org/)**: The global public registry of electric vehicle charging locations. VeriCharge queries this API in real-time based on your GPS coordinates to fetch nearby stations, hardware capabilities, max power output (kW), and connector compatibility. *(Note: Live availability telemetry is currently simulated on the frontend based on the raw OpenChargeMap POI data).*
-- **[OSRM (Open Source Routing Machine)](http://project-osrm.org/)**: Powers the turn-by-turn navigation engine. When you start a route, VeriCharge queries the OSRM backend to calculate the fastest road network polyline and provides live driving instructions (e.g., distance, turn modifiers).
-- **[Nominatim (OpenStreetMap)](https://nominatim.org/)**: The geocoding engine driving the search bar. It allows users to search for any city, street, or landmark and instantly converts that human-readable text into exact GPS coordinates to discover charging networks in remote areas.
+- **[OpenChargeMap API](https://openchargemap.org/)**: The global public registry of electric vehicle charging locations. VeriCharge queries this API in real-time based on your GPS coordinates to fetch nearby stations, hardware capabilities, max power output (kW), and connector compatibility.
+- **[OSRM (Open Source Routing Machine)](http://project-osrm.org/)**: Powers the turn-by-turn navigation engine. When you start a route, VeriCharge queries the OSRM backend to calculate the fastest road network polyline and provides live driving instructions.
+- **[Nominatim (OpenStreetMap)](https://nominatim.org/)**: The geocoding engine driving the search bar. It allows users to search for any city, street, or landmark and instantly converts that human-readable text into exact GPS coordinates.
 
 ## 🛠️ Technology Stack & Libraries
 
-The frontend is built with modern, high-performance web technologies:
+- **React & Vite**: Core UI library and build tool for a high-performance frontend.
+- **Tailwind CSS**: Powering the premium, responsive dark-mode aesthetic.
+- **MapLibre GL JS & React Map GL**: Hardware-accelerated 3D live navigation map.
+- **Schema.org JSON-LD**: Advanced SEO integration for personal branding and social discovery.
 
-- **[React](https://react.dev/) (`react`, `react-dom`)**: The core UI library used to build the interactive, component-based dashboard.
-- **[Vite](https://vitejs.dev/) (`vite`, `@vitejs/plugin-react`)**: Next-generation frontend build tool providing an ultra-fast development server and optimized production bundles.
-- **[Tailwind CSS](https://tailwindcss.com/) (`tailwindcss`)**: Utility-first CSS framework powering the premium, responsive dark-mode aesthetic and complex layout designs.
-- **[React Router](https://reactrouter.com/) (`react-router-dom`)**: Handles seamless, client-side routing between the Live Map, History, Reliability, and Support pages without reloading the app.
-- **[MapLibre GL JS](https://maplibre.org/) (`maplibre-gl`)**: An open-source, WebGL-based mapping engine used to render the highly interactive, hardware-accelerated 3D live navigation map.
-- **[React Map GL](https://visgl.github.io/react-map-gl/) (`react-map-gl`)**: Provides React components and hooks for MapLibre, allowing us to declaratively render the map, user location tracking arrow, and charging station markers.
-- **[Leaflet](https://leafletjs.com/) (`leaflet`, `react-leaflet`)**: Open-source mapping libraries retained for legacy 2D map rendering or lightweight fallback views.
-- **[ESLint](https://eslint.org/) (`eslint`, `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`)**: Pluggable JavaScript linter to enforce code quality, find syntax errors, and maintain React best practices.
-- **[PostCSS & Autoprefixer](https://postcss.org/) (`postcss`, `autoprefixer`)**: CSS transformation tools used alongside Tailwind to automatically parse CSS and add vendor prefixes, ensuring complete cross-browser compatibility.
+## 💻 Installation & Setup
 
-## 📍 Location Access & GPS Tracking
+### 1. Clone the Repository
+```bash
+git clone https://github.com/kuldeeppatel-cg/veriCharge.git
+cd veriCharge/FrontEnd
+```
 
-VeriCharge relies on the browser's native **Geolocation API** (`navigator.geolocation.watchPosition`) to provide a seamless dynamic map experience without requiring dedicated native mobile apps.
+### 2. Install Dependencies
+```bash
+npm install
+```
 
-- **Real-Time GPS Tracking**: The app requests location permissions upon loading the Live Map. Once granted, it actively listens for coordinate updates to render a moving 3D navigation arrow and locally recalculate ETAs to nearby stations.
-- **Privacy-First & Non-Blocking**: If a user denies location access (or it is disabled), the UI gracefully adapts. The map will load without crashing, displaying a *"Location Denied"* status banner, and completely unblocks the user to manually search for charging stations using the integrated search engine.
-- **Dynamic Directional Heading**: Utilizing coordinate deltas (`lastLat`/`lastLng` vs `newLat`/`newLng`), VeriCharge mathematically calculates the user's geographic bearing using spherical trigonometry (`Math.atan2`). This allows the platform to intelligently rotate the 3D map camera ahead of the driver when "Auto-Follow" navigation mode is active.
+### 3. Start Development Server
+```bash
+npm run dev
+```
 
-## 🎨 Design & Prototype
+---
 
-The platform is designed with a premium, state-of-the-art dark mode aesthetic tailored for the modern driver. You can explore the interactive high-fidelity prototype directly in Figma to see the complete user flow and design system.
+## 👨‍💻 Developer Branding
 
-👉 **[Explore the Interactive Figma Prototype](https://www.figma.com/proto/pZUu5qXerpjH2kAt1CpV6u/Untitled?page-id=0%3A1&node-id=30-3438&p=f&viewport=-287%2C-1647%2C0.47&t=5bYD9XioPioRtTtf-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=30%3A4347)**
+**Kuldeep Patel** - Full Stack Developer & Algo-Trader
+*   **LinkedIn:** [Kuldeep Patel](https://www.linkedin.com/in/kuldeep-patel07)
+*   **GitHub:** [@kuldeeppatel-cg](https://github.com/kuldeeppatel-cg)
+*   **LeetCode:** [Profile](https://leetcode.com/u/kuldeep-patel-cg/)
+*   **Portfolio:** [Live Website](https://vericharge.vercel.app/)
 
 ---
 
 <div align="center">
-  <sub>Built for the next generation of mobility.</sub>
+  <sub>Built with ❤️ by Kuldeep Patel for the next generation of mobility.</sub>
 </div>

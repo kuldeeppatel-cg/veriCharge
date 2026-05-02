@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import SEO from '../components/SEO';
 
 export default function Reliability() {
   const [user, setUser] = useState(null);
@@ -32,6 +33,7 @@ export default function Reliability() {
   };
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
+      <SEO title="Network Reliability" description="View real-time network health, uptime metrics, and community reports for VeriCharge EV chargers." />
       
       {/* Sidebar */}
       <Sidebar activePage="reliability" />

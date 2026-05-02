@@ -2,6 +2,7 @@
 
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import SEO from '../components/SEO';
 import StationOverview from '../components/StationOverview';
 import SystemIntegrity from '../components/SystemIntegrity';
 import LiveQueue from '../components/LiveQueue';
@@ -24,6 +25,7 @@ export default function Dashboard() {
   }, []);
   return (
     <div className="flex h-screen w-screen bg-[#121212] font-inter text-white overflow-hidden">
+      <SEO title="Station Details" description="View live details, availability, and amenities for VeriCharge EV stations." />
       
       {/* Fixed Sidebar */}
       <Sidebar activePage="station" />

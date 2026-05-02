@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import SEO from '../components/SEO';
 import Map, { Marker, Source, Layer, NavigationControl } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -611,6 +612,7 @@ export default function LiveMap() {
 
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
+      <SEO title="Live Map & Navigation" description="Navigate to over 100,000 EV charging stations in real-time. View availability, speed, and plan your trips with VeriCharge." />
 
       <Sidebar activePage="map" />
 

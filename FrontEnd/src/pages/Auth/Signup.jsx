@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import evChargingImg from '../../assets/ev_charging.png';
+import SEO from '../../components/SEO';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -28,6 +29,7 @@ export default function Signup() {
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen lg:h-screen w-screen bg-volt-dark font-inter text-white overflow-x-hidden">
+      <SEO title="Join VeriCharge" description="Create a VeriCharge account to start planning your EV trips and accessing our smart charging network." />
       
       {/* Left Panel (Hero) */}
       <div className="relative w-full lg:w-1/2 h-[45vh] lg:h-full shrink-0 border-none lg:border-r border-volt-border">

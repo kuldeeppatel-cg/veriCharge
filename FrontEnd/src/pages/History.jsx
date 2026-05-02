@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import Header from '../components/Header';
+import SEO from '../components/SEO';
 
 export default function History() {
   const [user, setUser] = useState(null);
@@ -63,6 +64,7 @@ export default function History() {
 
   return (
     <div className="flex h-screen w-screen bg-[#0a0f0d] font-inter text-white overflow-hidden">
+      <SEO title="Charging History" description="Track your EV charging sessions, energy usage, and carbon offset footprint with VeriCharge analytics." />
       
       {/* Sidebar */}
       <Sidebar activePage="history" />
