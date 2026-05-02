@@ -66,7 +66,28 @@ export default function Dashboard() {
       {/* Floating Action Bar */}
       <div className="absolute bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 bg-[#1c1c1c] border border-[#333] rounded-full p-2 pr-2 pl-6 flex items-center gap-6 shadow-2xl z-50 whitespace-nowrap">
         <span className="text-white text-sm font-bold">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For Your ${user.vehicleModel}` : ''}</span>
-        <button className="bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide">
+        <button 
+          onClick={() => {
+            if (!user) return alert("Please log in first!");
+            const historyKey = `history_${user.email}`;
+            const existingHistory = JSON.parse(localStorage.getItem(historyKey) || '[]');
+            const newSession = {
+              id: Date.now(),
+              date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+              station: "Silicon Valley Hub - V3",
+              type: "DC FAST",
+              isFast: true,
+              energy: parseFloat((Math.random() * (70 - 20) + 20).toFixed(1)),
+              cost: parseFloat((Math.random() * (30 - 10) + 10).toFixed(2)),
+              carbon: parseFloat((Math.random() * (20 - 5) + 5).toFixed(1)),
+              status: "COMPLETED"
+            };
+            localStorage.setItem(historyKey, JSON.stringify([newSession, ...existingHistory]));
+            alert(`Charge session completed! Logged ${newSession.energy}kWh to your history.`);
+          }}
+          className="bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide"
+        >
           START CHARGE SESSION
         </button>
       </div>
