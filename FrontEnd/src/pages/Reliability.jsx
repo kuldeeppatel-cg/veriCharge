@@ -41,7 +41,7 @@ export default function Reliability() {
         <Header />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 lg:p-10 relative">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 lg:p-10 pb-[120px] relative">
           <div className="max-w-[1200px] mx-auto">
             
             {/* Top Cards Section */}

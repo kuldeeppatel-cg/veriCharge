@@ -26,37 +26,41 @@ export default function Dashboard() {
     <div className="flex h-screen w-screen bg-[#121212] font-inter text-white overflow-hidden">
       
       {/* Fixed Sidebar */}
-      <Sidebar />
+      <Sidebar activePage="station" />
 
       {/* Main Layout Area */}
-      <div className="flex flex-col flex-1 h-screen overflow-hidden">
+      <div className="flex flex-col flex-1 h-screen overflow-hidden relative">
         
         {/* Fixed Header */}
-        <Header />
+        <Header title="STATION DETAILS" />
 
         {/* Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-8 lg:p-10 pb-[120px] relative">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-4 md:p-8 lg:p-10 pb-[120px] relative">
           <div className="max-w-[1200px] mx-auto">
             
             <StationOverview />
 
             {/* 3-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(204,230,0,0.1)] transition-all duration-300 rounded-2xl">
                 <SystemIntegrity />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
                 <LiveQueue />
               </div>
-              <div className="lg:col-span-1">
+              <div className="lg:col-span-1 hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
                 <Amenities />
               </div>
             </div>
 
             {/* Bottom 2-Column Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TechnicalSpecs />
-              <CommunityReports />
+              <div className="hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
+                <TechnicalSpecs />
+              </div>
+              <div className="hover:-translate-y-1 hover:shadow-[0_10px_40px_rgba(255,255,255,0.05)] transition-all duration-300 rounded-2xl">
+                <CommunityReports />
+              </div>
             </div>
 
           </div>
@@ -64,8 +68,8 @@ export default function Dashboard() {
       </div>
 
       {/* Floating Action Bar */}
-      <div className="absolute bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 bg-[#1c1c1c] border border-[#333] rounded-full p-2 pr-2 pl-6 flex items-center gap-6 shadow-2xl z-50 whitespace-nowrap">
-        <span className="text-white text-sm font-bold">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For Your ${user.vehicleModel}` : ''}</span>
+      <div className="absolute bottom-20 lg:bottom-8 left-1/2 lg:left-[calc(50%+130px)] -translate-x-1/2 w-[90%] lg:w-auto bg-[#1c1c1c] border border-[#333] rounded-3xl lg:rounded-full p-4 lg:p-2 lg:pr-2 lg:pl-6 flex flex-col lg:flex-row items-center gap-4 lg:gap-6 shadow-2xl z-[4000]">
+        <span className="text-white text-[13px] lg:text-sm font-bold text-center">Hub V3 - 1 Stall Available {user?.vehicleModel ? `For ${user.vehicleModel}` : ''}</span>
         <button 
           onClick={() => {
             if (!user) return alert("Please log in first!");
@@ -86,7 +90,7 @@ export default function Dashboard() {
             localStorage.setItem(historyKey, JSON.stringify([newSession, ...existingHistory]));
             alert(`Charge session completed! Logged ${newSession.energy}kWh to your history.`);
           }}
-          className="bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide"
+          className="w-full lg:w-auto bg-volt-green text-black font-bold px-8 py-3.5 rounded-full text-[13px] hover:bg-[#cce600] active:scale-[0.98] transition-all tracking-wide shrink-0"
         >
           START CHARGE SESSION
         </button>

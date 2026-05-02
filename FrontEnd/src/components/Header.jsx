@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 
-export default function Header({ title, children }) {
+export default function Header({ title, children, hideRightOnMobile }) {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -16,17 +16,17 @@ export default function Header({ title, children }) {
   }, []);
 
   return (
-    <header className="h-[72px] border-b border-[#222] flex items-center justify-between px-8 bg-[#0e0e0e] shrink-0">
+    <header className="h-[72px] border-b border-[#222] flex items-center justify-between px-4 md:px-8 bg-[#0e0e0e] shrink-0">
       
       {/* Title / Children */}
-      <div className="flex-1 flex items-center">
-        {title && <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mr-4">{title}</h2>}
+      <div className="flex-1 flex items-center min-w-0 pr-2">
+        {title && <h2 className="text-[11px] font-bold tracking-widest text-neutral-400 uppercase mr-2 md:mr-4 truncate hidden md:block">{title}</h2>}
         {children}
       </div>
 
       {/* Right Icons */}
-      <div className="flex items-center gap-5">
-        <button className="text-neutral-400 hover:text-white transition-colors relative">
+      <div className={`flex items-center gap-3 md:gap-5 shrink-0 ${hideRightOnMobile ? 'hidden md:flex' : 'flex'}`}>
+        <button className="text-neutral-400 hover:text-white transition-colors relative hidden sm:block">
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
           </svg>
@@ -45,7 +45,7 @@ export default function Header({ title, children }) {
         </button>
         
         {/* Dynamic User Profile */}
-        <div className="flex items-center gap-3 ml-2 border-l border-[#333] pl-5">
+        <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2 border-l border-[#333] pl-3 md:pl-5">
           <div className="flex flex-col items-end justify-center hidden sm:flex">
             <span className="text-white text-[13px] font-bold">{user?.fullName || 'Guest User'}</span>
             <span className="text-volt-green text-[9px] font-bold tracking-widest uppercase">{user?.vehicleModel || 'No Vehicle'}</span>

@@ -58,6 +58,36 @@ export default function LiveMap() {
 
   const [isRouting, setIsRouting] = useState(false);
   const [isAutoFollow, setIsAutoFollow] = useState(true);
+
+  // Bottom Sheet Drag State
+  const [panelHeight, setPanelHeight] = useState(55);
+  const dragStartY = useRef(0);
+  const dragStartHeight = useRef(55);
+
+  const handleDragStart = (e) => {
+    dragStartY.current = e.touches ? e.touches[0].clientY : e.clientY;
+    dragStartHeight.current = panelHeight;
+  };
+
+  const handleDragMove = (e) => {
+    if (!dragStartY.current) return;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const deltaY = dragStartY.current - clientY;
+    const deltaH = (deltaY / window.innerHeight) * 100;
+    
+    let newHeight = dragStartHeight.current + deltaH;
+    if (newHeight < 15) newHeight = 15;
+    if (newHeight > 90) newHeight = 90;
+    
+    setPanelHeight(newHeight);
+  };
+
+  const handleDragEnd = () => {
+    dragStartY.current = 0;
+    if (panelHeight < 35) setPanelHeight(15);
+    else if (panelHeight > 65) setPanelHeight(85);
+    else setPanelHeight(55);
+  };
   const [navInstruction, setNavInstruction] = useState(null);
 
   const [hasFetchedStations, setHasFetchedStations] = useState(false);
@@ -585,11 +615,11 @@ export default function LiveMap() {
       <Sidebar activePage="map" />
 
       <div className="flex flex-col flex-1 h-screen relative">
-        <Header>
-          <div className="flex items-center gap-4 w-full max-w-[800px] ml-4">
-            <div className="bg-[#111] border border-[#333] rounded-full flex p-1 shrink-0 h-[40px]">
-              <button onClick={() => setTripPlanMode(false)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${!tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>AREA</button>
-              <button onClick={() => setTripPlanMode(true)} className={`px-4 py-1 rounded-full text-[10px] font-bold tracking-widest transition-colors ${tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>TRIP</button>
+        <Header hideRightOnMobile={true}>
+          <div className="flex items-center gap-1.5 md:gap-4 w-full max-w-[800px] ml-0 md:ml-4">
+            <div className="bg-[#111] border border-[#333] rounded-full flex p-0.5 md:p-1 shrink-0 h-[36px] md:h-[40px]">
+              <button onClick={() => setTripPlanMode(false)} className={`px-2.5 md:px-4 py-1 rounded-full text-[9px] md:text-[10px] font-bold tracking-widest transition-colors ${!tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>AREA</button>
+              <button onClick={() => setTripPlanMode(true)} className={`px-2.5 md:px-4 py-1 rounded-full text-[9px] md:text-[10px] font-bold tracking-widest transition-colors ${tripPlanMode ? 'bg-volt-green text-black' : 'text-neutral-500 hover:text-white'}`}>TRIP</button>
             </div>
 
             <div className="flex-1 relative h-[40px]">
@@ -612,11 +642,11 @@ export default function LiveMap() {
                   )}
                 </div>
               ) : (
-                <form onSubmit={handlePlanTrip} className="flex gap-3 w-full h-full">
-                  <div className="relative flex-1 h-full">
-                    <input type="text" placeholder="Start Location..." value={tripStart} onChange={(e) => setTripStart(e.target.value)} onFocus={() => { if (tripStartSuggestions.length > 0) setShowTripStartSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
+                <form onSubmit={handlePlanTrip} className="flex gap-1.5 md:gap-3 w-full h-[36px] md:h-[40px]">
+                  <div className="relative flex-1 h-full min-w-0">
+                    <input type="text" placeholder="Start..." value={tripStart} onChange={(e) => setTripStart(e.target.value)} onFocus={() => { if (tripStartSuggestions.length > 0) setShowTripStartSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[11px] md:text-[13px] px-3 md:px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
                     {showTripStartSuggestions && tripStartSuggestions.length > 0 && (
-                      <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
+                      <div className="absolute top-[calc(100%+8px)] left-0 w-[200px] md:right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
                         {tripStartSuggestions.map((s, idx) => (
                           <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors" onClick={() => { setTripStart(s.display_name.split(',')[0]); setShowTripStartSuggestions(false); }}>
                             <span className="text-white font-bold block text-[13px]">{s.display_name.split(',')[0]}</span>
@@ -626,10 +656,10 @@ export default function LiveMap() {
                       </div>
                     )}
                   </div>
-                  <div className="relative flex-1 h-full">
-                    <input type="text" placeholder="Destination..." value={tripDest} onChange={(e) => setTripDest(e.target.value)} onFocus={() => { if (tripDestSuggestions.length > 0) setShowTripDestSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[13px] px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
+                  <div className="relative flex-1 h-full min-w-0">
+                    <input type="text" placeholder="Dest..." value={tripDest} onChange={(e) => setTripDest(e.target.value)} onFocus={() => { if (tripDestSuggestions.length > 0) setShowTripDestSuggestions(true); }} className="w-full h-full bg-[#161616] border border-[#222] rounded-full text-white text-[11px] md:text-[13px] px-3 md:px-4 focus:outline-none focus:border-volt-green/50 transition-colors shadow-inner" />
                     {showTripDestSuggestions && tripDestSuggestions.length > 0 && (
-                      <div className="absolute top-[calc(100%+8px)] left-0 right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
+                      <div className="absolute top-[calc(100%+8px)] left-0 w-[200px] md:right-0 bg-[#161616] border border-[#222] rounded-xl overflow-hidden z-[1010] shadow-2xl">
                         {tripDestSuggestions.map((s, idx) => (
                           <div key={idx} className="px-4 py-3 hover:bg-[#222] cursor-pointer text-sm text-neutral-300 border-b border-[#222] last:border-0 transition-colors" onClick={() => { setTripDest(s.display_name.split(',')[0]); setShowTripDestSuggestions(false); }}>
                             <span className="text-white font-bold block text-[13px]">{s.display_name.split(',')[0]}</span>
@@ -639,8 +669,8 @@ export default function LiveMap() {
                       </div>
                     )}
                   </div>
-                  <button type="submit" disabled={isPlanningTrip} className="shrink-0 bg-[#222] text-white px-5 h-full rounded-full text-[10px] font-bold hover:bg-volt-green hover:text-black transition-colors disabled:opacity-50 tracking-wider">
-                    {isPlanningTrip ? '...' : 'PLAN ROUTE'}
+                  <button type="submit" disabled={isPlanningTrip} className="shrink-0 bg-[#222] text-white px-3 md:px-5 h-full rounded-full text-[9px] md:text-[10px] font-bold hover:bg-volt-green hover:text-black transition-colors disabled:opacity-50 tracking-wider">
+                    {isPlanningTrip ? '...' : <span className="hidden md:inline">PLAN ROUTE</span>}<span className="md:hidden text-volt-green">GO</span>
                   </button>
                 </form>
               )}
@@ -848,7 +878,7 @@ export default function LiveMap() {
           )}
 
           {/* Locate Me Bottom Right */}
-          <div className="absolute bottom-8 right-6 z-[1000]">
+          <div className="absolute md:bottom-8 bottom-[58%] right-6 z-[1000] transition-all">
             <button
               onClick={() => {
                 setIsAutoFollow(true);
@@ -880,11 +910,28 @@ export default function LiveMap() {
 
           {/* Left Floating Panel (Nearby Stations) */}
           {!isRouting && (
-            <div className="absolute top-6 left-6 md:w-[360px] w-full px-6 md:px-0 flex flex-col gap-4 z-[1000] h-[calc(100%-48px)] pointer-events-none">
+            <div 
+              className="absolute bottom-0 md:bottom-auto md:top-6 left-0 md:left-6 w-full md:w-[360px] flex flex-col gap-4 z-[1000] md:h-[calc(100%-48px)] pointer-events-none"
+              style={{ height: window.innerWidth < 768 ? `${panelHeight}%` : undefined, transition: dragStartY.current === 0 ? 'height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' : 'none' }}
+            >
 
 
 
-              <div className="bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl flex-1 flex flex-col overflow-hidden pointer-events-auto">
+              <div className="bg-[#161616]/95 backdrop-blur-xl border-t border-[#2c2c2c] md:border md:rounded-2xl rounded-t-[2rem] p-5 md:shadow-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] flex-1 flex flex-col overflow-hidden pointer-events-auto">
+                {/* Drag Handle Area */}
+                <div 
+                  className="w-full pt-2 pb-6 -mt-2 -mb-2 cursor-grab active:cursor-grabbing md:hidden shrink-0 flex justify-center items-start"
+                  onTouchStart={handleDragStart}
+                  onTouchMove={handleDragMove}
+                  onTouchEnd={handleDragEnd}
+                  onMouseDown={handleDragStart}
+                  onMouseMove={handleDragMove}
+                  onMouseUp={handleDragEnd}
+                  onMouseLeave={handleDragEnd}
+                >
+                  <div className="w-12 h-1.5 bg-[#333] rounded-full"></div>
+                </div>
+                
                 <div className="flex justify-between items-center mb-5 shrink-0">
                   <h3 className="text-white font-semibold text-lg">{tripPlanMode && routeCoords ? 'Stations on Route' : searchLocation ? 'Searched Area' : 'Nearby Stations'}</h3>
                 </div>
@@ -966,7 +1013,8 @@ export default function LiveMap() {
 
           {/* Selected Station Overlay */}
           {selectedStation && (
-            <div className="absolute bottom-8 right-24 w-[360px] bg-[#161616]/95 backdrop-blur-xl border border-[#2c2c2c] rounded-2xl p-5 shadow-2xl z-[1000] flex flex-col gap-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
+            <div className="absolute bottom-0 md:bottom-8 right-0 md:right-24 w-full md:w-[360px] bg-[#161616]/95 backdrop-blur-xl border-t border-[#2c2c2c] md:border rounded-t-[2rem] md:rounded-2xl p-5 md:shadow-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] z-[1010] flex flex-col gap-4 pointer-events-auto animate-in slide-in-from-bottom-4 duration-200">
+              <div className="w-12 h-1.5 bg-[#333] rounded-full mx-auto mb-1 md:hidden shrink-0"></div>
               <div className="flex items-start gap-4">
                 <div className="w-14 h-14 rounded-xl bg-[#222] border border-[#333] flex items-center justify-center shrink-0">
                   <svg className="w-7 h-7 text-volt-green" viewBox="0 0 24 24" fill="currentColor">
